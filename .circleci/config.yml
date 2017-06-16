@@ -1,0 +1,107 @@
+version: 2
+# https://circleci.com/docs/configuration#machine
+jobs:
+    build:
+        docker:
+            - image: notnoopci/php:7.1.5-browsers
+        working_directory: ~/contentacms
+        environment:
+            # In addition to the environment variables defined in this file, also
+            # add the following variables in the Circle CI UI.
+            #
+            # See: https://circleci.com/docs/1.0/environment-variables/
+            #
+            # TERMINUS_SITE:  Name of the Pantheon site to run tests on, e.g. my_site
+            # TERMINUS_TOKEN: The Pantheon machine token
+            # GITHUB_TOKEN:   The GitHub personal access token
+            # GIT_EMAIL:      The email address to use when making commits
+            #
+            # TEST_SITE_NAME: The name of the test site to provide when installing.
+            # ADMIN_PASSWORD: The admin password to use when installing.
+            # ADMIN_EMAIL:    The email address to give the admin when installing.
+            #
+            # The variables below usually do not need to be modified.
+            BASH_ENV: ~/.bashrc
+            TZ: '/usr/share/zoneinfo/America/Los_Angeles'
+        steps:
+            - checkout
+
+            - run: printenv
+
+            - run: echo -e "Host *\n  StrictHostKeyChecking no\n  HashKnownHosts no\n  SendEnv LANG LC_*\n" >> ~/.ssh/config
+            - run: cat ~/.ssh/config
+
+            - run: echo "Begin build for $CIRCLE_ENV${PR_ENV:+ for }$PR_ENV. Pantheon test environment is $TERMINUS_SITE.$TERMINUS_ENV"
+            - run: composer self-update
+            - run: |
+                if [ -n "$GITHUB_TOKEN" ] ; then
+                    composer config --global github-oauth.github.com $GITHUB_TOKEN
+                fi
+            - run: git config --global user.email "$GIT_EMAIL"
+            - run: git config --global user.name "Circle CI"
+            - restore_cache:
+                keys:
+                    - composer-v1-{{ checksum "composer.json" }}
+                    - composer-v1-
+            - run:
+                name: install-prestissimo
+                command: composer global require -n "hirak/prestissimo:^0.3"
+            - run:
+                name: install-terminus
+                command: composer --working-dir=$HOME require pantheon-systems/terminus "^1"
+            - run: $HOME/vendor/bin/terminus --version
+            - run:
+                name: install-drush
+                command: composer --working-dir=$HOME require drush/drush "^8"
+            - run:
+                name: create-terminus-directory
+                command: mkdir -p ~/.terminus/plugins
+            - run:
+                name: install-terminus-plugins
+                command: composer create-project -n -d ~/.terminus/plugins pantheon-systems/terminus-build-tools-plugin:^1
+            - run:
+                name: install-terminus-secrets
+                command: composer create-project -n -d ~/.terminus/plugins pantheon-systems/terminus-secrets-plugin:^1
+            - run:
+                name: login-pantheon
+                command: $HOME/vendor/bin/terminus auth:login -n --machine-token="$TERMINUS_TOKEN"
+            - run:
+                name: delete-old-multidevs
+                command: $HOME/vendor/bin/terminus build:env:delete:ci -n "$TERMINUS_SITE" --keep=2 --yes
+            - run:
+                name: Build Assets
+                command: |
+                    composer -n build-assets
+                    cp -r web/profiles/contrib/contenta_jsonapi/config/sync config
+
+            - save_cache:
+                key: composer-v1-{{ checksum "composer.json" }}
+                paths:
+                    - vendor
+                    - ~/vendor
+                    - ~/.composer
+            - run: $HOME/vendor/bin/terminus env:wake -n "$TERMINUS_SITE.dev"
+            # - run: $HOME/vendor/bin/terminus build:env:create -n "$TERMINUS_SITE.dev" "$TERMINUS_ENV" --yes --clone-content --db-only --notify="$NOTIFY"
+            # - run: $HOME/vendor/bin/terminus drush -n "$TERMINUS_SITE.$TERMINUS_ENV" -- updatedb -y
+            - run:
+                name: install-multidev
+                command: |
+                    export BRANCH=$(echo $CIRCLE_BRANCH | grep -v '^\(master\|[0-9]\+.x\)$')
+                    export PR_ENV=${BRANCH:+pr-$BRANCH}
+                    export CIRCLE_ENV=ci-$CIRCLE_BUILD_NUM
+                    export DEFAULT_ENV=$(echo ${PR_ENV:-$CIRCLE_ENV} | tr '[:upper:]' '[:lower:]' | sed 's/[^0-9a-z-]//g' | cut -c -11 | sed 's/-$//')
+                    export TERMINUS_ENV=${TERMINUS_ENV:-$DEFAULT_ENV}
+                    export NOTIFY='scripts/github/add-commit-comment {project} {sha} "Created multidev environment [{site}#{env}]({dashboard-url})." {site-url}'
+                    $HOME/vendor/bin/terminus build:env:create -n "$TERMINUS_SITE.dev" "$TERMINUS_ENV" --yes --notify="$NOTIFY"
+                    $HOME/vendor/bin/terminus build:env:install -n "$TERMINUS_SITE.$TERMINUS_ENV" --site-name="$TEST_SITE_NAME" --account-mail="$ADMIN_EMAIL" --account-pass="$ADMIN_PASSWORD" --site-name="Contenta CMS" --site-mail="$ADMIN_EMAIL" -v
+            # Run the Behat tests.
+            # - run: run-behat
+            # - run: - $HOME/vendor/bin/terminus secrets:set -n "$TERMINUS_SITE.$TERMINUS_ENV" token "$GITHUB_TOKEN" --file='github-secrets.json' --clear --skip-if-empty
+            - deploy:
+                name: Maybe Deploy
+                command: |
+                    if [ "${CIRCLE_BRANCH}" == "master" ]; then
+                      $HOME/vendor/bin/terminus build:env:push -n "$TERMINUS_SITE.dev" --yes
+                      $HOME/vendor/bin/terminus build:env:install -n "$TERMINUS_SITE.dev" --site-name="$TEST_SITE_NAME" --account-mail="$ADMIN_EMAIL" --account-pass="$ADMIN_PASSWORD" --site-name="Contenta CMS" --site-mail="$ADMIN_EMAIL" -v
+                      $HOME/vendor/bin/terminus build:env:delete:pr -n "$TERMINUS_SITE" --yes
+                    fi
