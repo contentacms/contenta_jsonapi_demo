@@ -1,0 +1,15 @@
+.top-navigation {
+  background-color: $primary-color-dark;
+
+  .region-top-nav {
+    a {
+      color: $primary-color-light;
+    }
+    ul li {
+      display: inline;
+      padding: 0 15px;
+
+    }
+  }
+}
+

@@ -1,0 +1,7 @@
+name: 'Tests config_install flag multilingual'
+type: profile
+description: 'Tests using the config importer during install with multilingual content.'
+version: VERSION
+core: 8.x
+hidden: true
+config_install: true

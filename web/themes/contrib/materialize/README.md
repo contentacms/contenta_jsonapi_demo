@@ -1,0 +1,25 @@
+<!-- @file Project Page -->
+# Materialize
+
+> A modern responsive front-end framework based on Material Design. Materialize
+> simplifies life for developers and the users they serve.
+> Created and designed by Google, Material Design is a design language that
+> combines the classic principles of successful design along with innovation
+> and technology. Google's goal is to develop a system of design that allows
+> for a unified user experience across all their products on any platform.
+
+This base theme bridges the gap between Drupal and the [Materialize Framework](http://materializecss.com/).
+
+### Features
+
+### Documentation
+
+[Materialize Framework]: http://materializecss.com/
+
+Credits
+
+Our work based on the [Materialize Framework]: http://materializecss.com/.
+Our Drupal theme are based on the develpers work of the [Bootstrap theme] https://www.drupal.org/project/bootstrap
+and [Zend Framework] https://www.drupal.org/project/zend
+
+Thanks Guys!

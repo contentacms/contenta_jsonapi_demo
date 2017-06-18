@@ -1,0 +1,137 @@
+<?php
+
+/**
+ * @file
+ * The primary PHP file for the Drupal Materialize base theme.
+ *
+ * This file should only contain light helper functions and point to stubs in
+ * other files containing more complex functions.
+ *
+ * The stubs should point to files within the `./includes` directory named after
+ * the function itself minus the theme prefix. If the stub contains a group of
+ * functions, then please organize them so they are related in some way and name
+ * the file appropriately to at least hint at what it contains.
+ *
+ * All [pre]process functions, theme functions and template files lives inside
+ * the `./templates` directory. This is a highly automated and complex system
+ * designed to only load the necessary files when a given theme hook is invoked.
+ *
+ * @see materialize_theme()
+ * @see \Drupal\materialize\Registry
+ */
+
+use Drupal\materialize\Materialize;
+
+/**
+ * Initialize the active theme.
+ */
+Materialize::initialize();
+
+/**
+ * {@inheritdoc}
+ *
+ * @see hook_materialize_colorize_text_alter()
+ */
+function materialize_materialize_colorize_text_alter(&$data, &$context1 = NULL, &$context2 = NULL) {
+  Materialize::alter(__FUNCTION__, $data, $context1, $context2);
+}
+
+/**
+ * {@inheritdoc}
+ *
+ * @see hook_materialize_iconize_text_alter()
+ */
+function materialize_materialize_iconize_text_alter(&$data, &$context1 = NULL, &$context2 = NULL) {
+  Materialize::alter(__FUNCTION__, $data, $context1, $context2);
+}
+
+/**
+ * {@inheritdoc}
+ *
+ * @see \Drupal\materialize\Plugin\Alter\ElementInfo::alter()
+ */
+function materialize_element_info_alter(&$data, &$context1 = NULL, &$context2 = NULL) {
+  Materialize::alter(__FUNCTION__, $data, $context1, $context2);
+}
+
+/**
+ * {@inheritdoc}
+ *
+ * @see \Drupal\materialize\Theme::alter()
+ */
+function materialize_form_alter(&$data, &$context1 = NULL, &$context2 = NULL) {
+  Materialize::alter(__FUNCTION__, $data, $context1, $context2);
+}
+
+/**
+ * {@inheritdoc}
+ *
+ * @see \Drupal\materialize\Plugin\Form\SystemThemeSettings::alterForm()
+ */
+function materialize_form_system_theme_settings_alter(&$data, &$context1 = NULL, &$context2 = NULL) {
+  Materialize::alter(__FUNCTION__, $data, $context1, $context2);
+}
+
+/**
+ * {@inheritdoc}
+ */
+function materialize_js_settings_alter(&$data, &$context1 = NULL, &$context2 = NULL) {
+  Materialize::alter(__FUNCTION__, $data, $context1, $context2);
+}
+
+/**
+ * {@inheritdoc}
+ *
+ * @see \Drupal\materialize\Plugin\Alter\LibraryInfo::alter()
+ */
+function materialize_library_info_alter(&$data, &$context1 = NULL, &$context2 = NULL) {
+  Materialize::alter(__FUNCTION__, $data, $context1, $context2);
+}
+
+/**
+ * {@inheritdoc}
+ *
+ * @see \Drupal\materialize\Plugin\Alter\PageAttachments::alter()
+ */
+function materialize_page_attachments_alter(&$data, &$context1 = NULL, &$context2 = NULL) {
+  Materialize::alter(__FUNCTION__, $data, $context1, $context2);
+}
+
+/**
+ * {@inheritdoc}
+ *
+ * @see \Drupal\materialize\Materialize::preprocess()
+ */
+function materialize_preprocess(&$variables, $hook, $info) {
+  Materialize::preprocess($variables, $hook, $info);
+}
+
+/**
+ * {@inheritdoc}
+ *
+ * @see \Drupal\materialize\Materialize::getInfo()
+ */
+function materialize_theme() {
+  return Materialize::getThemeHooks();
+}
+
+/**
+ * {@inheritdoc}
+ *
+ * @see \Drupal\materialize\Plugin\Alter\ThemeRegistry::alter()
+ *
+ * @todo Remove once a proper replacement for the theme.registry service can be
+ * created in a materialize_core sub-module.
+ */
+function materialize_theme_registry_alter(&$data, &$context1 = NULL, &$context2 = NULL) {
+  Materialize::alter(__FUNCTION__, $data, $context1, $context2);
+}
+
+/**
+ * {@inheritdoc}
+ *
+ * @see \Drupal\materialize\Plugin\Alter\ThemeSuggestions::alter()
+ */
+function materialize_theme_suggestions_alter(&$data, &$context1 = NULL, &$context2 = NULL) {
+  Materialize::alter(__FUNCTION__, $data, $context1, $context2);
+}

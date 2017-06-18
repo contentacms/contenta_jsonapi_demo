@@ -1,0 +1,16 @@
+favicon:
+  mimetype: image/vnd.microsoft.icon
+  path: profiles/contrib/contenta_jsonapi/themes/materialize_contenta/favicon.ico
+  url: ''
+  use_default: false
+features:
+  comment_user_picture: true
+  comment_user_verification: true
+  favicon: true
+  node_user_picture: true
+logo:
+  path: profiles/contrib/contenta_jsonapi/themes/materialize_contenta/logo.svg
+  url: ''
+  use_default: false
+_core:
+  default_config_hash: 7_zZVPKeUTKX6LhFfYkp8TLvycZHohXrRHoRW5EUCNQ

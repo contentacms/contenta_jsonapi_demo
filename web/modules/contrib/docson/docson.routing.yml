@@ -1,0 +1,15 @@
+docson.schema_inspector:
+  path: /docson/inspect
+  defaults:
+    _title: 'Inspect schema'
+    _controller: '\Drupal\docson\Controller\DocsonController::inspectSchema'
+  requirements:
+    _access: 'TRUE'
+
+docson.schema_selector:
+  path: '/docson'
+  defaults:
+    _form:  '\Drupal\docson\Form\EntityBundlePicker'
+    _title: 'Schema Selector'
+  requirements:
+    _permission: 'access content'

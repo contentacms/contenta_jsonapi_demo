@@ -1,0 +1,13 @@
+name: Docson
+type: module
+description: Display JSON Schema documents using docson.
+# core: 8.x
+package: Web services
+dependencies:
+  - schemata
+
+# Information added by Drupal.org packaging script on 2017-05-02
+version: '8.x-1.0'
+core: '8.x'
+project: 'docson'
+datestamp: 1493755093

@@ -1,0 +1,17 @@
+/*!
+ * Reset styles for drupal toolbar module.
+ */
+
+.toolbar nav {
+  background-color: #fff;
+  height: auto;
+  line-height: normal;
+}
+
+.toolbar nav ul li {
+  float: none;
+}
+
+.toolbar nav ul li a {
+  font-size: small;
+}
