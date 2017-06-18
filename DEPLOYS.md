@@ -3,3 +3,5 @@ This file is updated automatically by CircleCI upon commit on the Drupal distrib
 Changes:
 
   * Initial code push.
+  * Profile update -> buildNum=[22](https://circleci.com/gh/contentacms/contenta_jsonapi/22) on [](git@github.com:contentacms/contenta_jsonapi.git)@CIRCLE_SHA1
+
