@@ -1,0 +1,12 @@
+parameters:
+  cors.config:
+    enabled: true
+    allowedHeaders:
+      - '*'
+    allowedMethods:
+      - '*'
+    allowedOrigins:
+      - '*'
+    exposedHeaders: false
+    maxAge: false
+    supportsCredentials: false
