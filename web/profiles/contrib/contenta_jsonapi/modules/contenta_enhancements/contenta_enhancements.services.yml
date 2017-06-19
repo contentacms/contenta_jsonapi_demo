@@ -1,5 +1,0 @@
-services:
-  contenta_enhancements.routing_disabler:
-    class: \Drupal\contenta_enhancements\EventSubscriber\RoutingDisabler
-    tags:
-      - { name: event_subscriber }
