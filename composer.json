@@ -43,7 +43,6 @@
   },
   "scripts": {
     "build-assets": [
-      "composer update contentacms/contenta_jsonapi",
       "@prepare-for-pantheon",
       "composer install --optimize-autoloader"
     ],
