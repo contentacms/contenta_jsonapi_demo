@@ -50,6 +50,12 @@ web/web.config
 ### to the Pantheon repository.
 ###
 
+# This is not something you would do in a real site.
+# But we want a fresh reinstall of everything on each
+# push.
+/composer.lock
+
+
 # Ignore Drupal's file directory
 /web/sites/*/files/
 
