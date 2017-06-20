@@ -72,6 +72,7 @@ jobs:
                 name: Build Assets
                 command: |
                     composer -n build-assets
+                    rm -fr config
                     cp -r web/profiles/contrib/contenta_jsonapi/config/sync config
 
             - save_cache:
