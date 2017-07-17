@@ -95,3 +95,5 @@ Changes:
 
   * Profile update -> buildNum=[332](https://circleci.com/gh/contentacms/contenta_jsonapi/332) on [](git@github.com:contentacms/contenta_jsonapi.git)@CIRCLE_SHA1
 
+  * Profile update -> buildNum=[341](https://circleci.com/gh/contentacms/contenta_jsonapi/341) on [](git@github.com:contentacms/contenta_jsonapi.git)@CIRCLE_SHA1
+
