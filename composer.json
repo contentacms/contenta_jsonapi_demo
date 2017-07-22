@@ -13,6 +13,7 @@
     "contentacms/contenta_jsonapi": "dev-8.x-1.x",
     "cweagans/composer-patches": "^1.6",
     "drupal-composer/drupal-scaffold": "^2.3",
+    "drupal/redis": "1.x-dev",
     "drush/drush": "^8",
     "rvtraveller/qs-composer-installer": "^1.1",
     "webflo/drupal-core-strict": "^8"
