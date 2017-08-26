@@ -1,0 +1,95 @@
+{
+    "name": "contentacms/contenta_jsonapi",
+    "description": "",
+    "type": "drupal-profile",
+    "authors": [
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "license": "GPL-2.0+",
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://packages.drupal.org/8"
+        }
+
+    ],
+    "extra": {
+        "installer-paths": {
+            "web/core": [
+                "type:drupal-core"
+            ],
+            "web/modules/contrib/{$name}": [
+                "type:drupal-module"
+            ],
+            "web/libraries/{$name}": [
+                "type:drupal-library"
+            ],
+            "web/profiles/contrib/{$name}": [
+                "type:drupal-profile"
+            ],
+            "web/themes/contrib/{$name}": [
+                "type:drupal-theme"
+            ],
+            "drush/contrib/{$name}": [
+                "type:drupal-drush"
+            ]
+        },
+        "patches": {
+            "drupal/core": {
+                "Allow a profile to be installed from existing config": "https://www.drupal.org/files/issues/2788777-33.patch"
+            },
+            "drupal/remote_stream_wrapper": {
+                "Module installation fails when shipped as part of an install profile": "https://www.drupal.org/files/issues/2886691-2.patch"
+            },
+            "asm89/stack-cors": {
+              "Add origin matcher for wildcard matching": "https://patch-diff.githubusercontent.com/raw/asm89/stack-cors/pull/42.patch",
+              "Do not modify request with same origin": "https://github.com/asm89/stack-cors/commit/6daf5757971173b79ddabbd755d59d333c278f42.patch"
+            }
+        }
+    },
+    "require": {
+        "composer/installers": "^1.0",
+        "cweagans/composer-patches": "~1.0",
+        "drupal/core": "^8.3.4",
+        "drupal/jsonapi": "^1.0",
+        "drupal/simple_oauth": "^2.0",
+        "drupal/jsonapi_extras": "^1.0",
+        "drupal/subrequests": "^1.0",
+        "drupal/fieldable_path": "^1.0",
+        "drupal/media_entity": "^1.6",
+        "drupal/entity_browser": "^1.0",
+        "drupal/remote_stream_wrapper": "1.0",
+        "drupal/media_entity_image": "^1.2",
+        "drupal/dropzonejs": "^1.0@alpha",
+        "drupal/schemata": "^1.0@alpha",
+        "drupal/openapi": "^1.0@alpha",
+        "drupal/material_admin": "1.x-dev",
+        "drupal/snail": "1.x-dev",
+        "drupal/media_entity_browser": "^1.0@beta"
+    },
+    "config": {
+      "process-timeout": 0
+    },
+    "scripts": {
+        "install-contenta": "scripts/development/build-contenta_jsonapi.sh",
+        "start-contenta": "scripts/development/start-contenta_jsonapi.sh",
+        "ci:helper": "scripts/ci/travis/tests/contenta_ci_tests_helper.sh",
+        "ci:before-deploy": "scripts/ci/travis/before_deploy.sh",
+        "post-package-install": [
+            "Drupal\\Core\\Composer\\Composer::vendorTestCodeCleanup"
+        ],
+        "post-package-update": [
+            "Drupal\\Core\\Composer\\Composer::vendorTestCodeCleanup"
+        ]
+    },
+    "provide": {
+    },
+    "require-dev": {
+        "burdamagazinorg/thunder-dev-tools": "dev-master",
+        "drupal/config_inspector": "1.x-dev",
+        "drupal/coder": "^8.2",
+        "drupal/features": "^3.5",
+        "guzzlehttp/guzzle": "~6.0"
+    }
+}

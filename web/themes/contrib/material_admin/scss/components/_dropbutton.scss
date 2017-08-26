@@ -1,0 +1,83 @@
+/* @file
+ * Dropbutton partial
+ * Additoinal dropbutton styling in _views.scss for specific view admin styling.
+ *
+ */
+//table dropdown
+.dropbutton-wrapper.dropbutton-single {
+  .edit {
+    a {
+      @extend .btn;
+      @extend .btn-flat;
+    }
+  }
+}
+
+.dropbutton-wrapper {
+  display: inline-block;
+  .single-btn-wrapper {
+    list-style: none;
+  }
+}
+
+.dropbutton-widget {
+  padding: 0 5px;
+}
+
+.dropdown-button {
+  display: inline-block;
+  &:hover {
+    text-decoration: none;
+    @extend .lighten-5;
+  }
+  &:after {
+    @extend .material-icons;
+    margin-left: 10px;
+    content: 'keyboard_arrow_down';
+    display: inline;
+  }
+  &.active:after {
+    @extend .material-icons;
+    margin-left: 10px;
+    content: 'keyboard_arrow_up';
+    display: inline;
+  }
+  &.ellipsis-icon:after {
+    content: '';
+    display: none;
+  }
+}
+
+//dont show button styles in dropdowns
+.dropdown-content {
+  li {
+    .button {
+      display: block;
+      background: none;
+      color: inherit;
+      box-shadow: none;
+      padding: inherit;
+    }
+  }
+}
+
+table.highlight>tbody>tr.selected {
+  @extend .grey, .lighten-4;
+  a {
+    text-decoration: none;
+  }
+  a.dropdown-button {
+    @extend .grey-text, .text-darken-2;
+    text-decoration: none;
+  }
+  .dropbutton-widget li {
+    @extend .black-text;
+    a {
+      @extend .black-text;
+      text-decoration: none;
+    }
+  }
+  td {
+    @extend .grey, .lighten-4;
+  }
+}

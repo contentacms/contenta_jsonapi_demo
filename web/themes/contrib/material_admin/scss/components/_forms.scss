@@ -1,0 +1,539 @@
+/* @file
+ * Form specific styling
+ *
+ */
+
+@media #{$medium-and-up} {
+  // styles for medium screens and larger
+  .form--inline {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: flex-start;
+    .input-field {
+      margin: 10px 10px!important;
+      flex: 0 1 20%;
+    }
+  }
+}
+
+.file-upload-btn.btn-floating {
+  height: inherit;
+  line-height: inherit;
+  i {
+    font-size: 1.3em;
+  }
+} 
+
+//override materializecss: dont set form width, only max width and allow the form fields to use its length.
+input:not([type]), input[type=text]:not(.browser-default), input[type=password]:not(.browser-default), input[type=email]:not(.browser-default), input[type=url]:not(.browser-default), input[type=time]:not(.browser-default), input[type=date]:not(.browser-default), input[type=datetime]:not(.browser-default), input[type=datetime-local]:not(.browser-default), input[type=tel]:not(.browser-default), input[type=number]:not(.browser-default), input[type=search]:not(.browser-default) {
+  max-width: 100%;
+  width: inherit;
+}
+
+textarea.materialize-textarea {
+  padding: .8rem .5rem 1.6rem .5rem;
+  // since we cant use borderbox or it breaks the 'autoresize', set max width to accomidate for the padding.
+  max-width:95%;
+  width:inherit;
+  &:focus {
+    border:1px solid color("teal", "lighten-1");
+  }
+}
+
+.form--inline .input-field {
+  display: block;
+  width: 100%;
+}
+
+.form-radios {
+  margin: 25px 0;
+  .form-item.form-type-radio {
+    margin: 10px 0;
+  }
+}
+
+.select-wrapper {
+  max-width: 450px;
+  width: 100%;
+  .input.select-dropdown {
+    max-width: inherit;
+  }
+}
+
+.form-type-entity-autocomplete {
+  label {
+    padding-right: 1em;
+  }
+}
+
+.form-item, .filter-wrapper .form-item, .form-item.password-parent, .form-item.confirm-parent {
+  margin: 25px 0;
+  &.form-has-label:not(.form-type-checkbox):not(.form-type-radio) {
+    margin: 45px 0px 25px 0px;
+  }
+  position: relative;
+  overflow: visible;
+  .form-required {
+    &:after {
+      content: " *";
+      @extend .error-text-color;
+    }
+  }
+}
+
+.filter-wrapper {
+  overflow: initial;
+}
+
+//module extend page styling
+.requirements .admin-requirements {
+  padding: .5em 0;
+}
+
+.package-listing .details-description .links {
+  @extend .card-action;
+  position: relative;
+  background-color: inherit;
+  border-top: 1px solid rgba(160, 160, 160, 0.2);
+  padding: 16px 24px;
+}
+
+.details-wrapper table thead {
+  border: none;
+}
+
+//form items in tables require less margin (but only the tope level item)
+table td>.form-item, table td>.ajax-new-content>.form-item {
+  margin: 0;
+  &~.form-wrapper {
+    margin: 25px 0;
+  }
+  .select-wrapper input.select-dropdown {
+    margin: 0;
+  }
+}
+
+.input-field.js-form-type-checkbox label {
+  top: 0;
+}
+
+input[type=checkbox] {
+  @extend .filled-in;
+}
+
+#edit-actions {
+  .button {}
+  .button--danger {
+    @extend .btn-flat;
+    @extend .red-text, .lighten-2
+  }
+}
+
+input.btn {
+  margin: 5px;
+  @media #{$medium-and-down} {
+    margin-bottom: 1em;
+  }
+}
+
+.draggable {
+  min-height: 30px;
+  a.tabledrag-handle {
+    float: none;
+    display: inline-block;
+    overflow: visible;
+    height: auto;
+    vertical-align: middle;
+    &~* {
+      display: inline-block;
+      vertical-align: middle;
+    }
+    .handle {
+      width: 30px;
+      height: 30px;
+    }
+  }
+}
+
+abbr.warning {
+  @extend .warning-text-color;
+  text-decoration: none;
+}
+
+.switch label {
+  white-space: nowrap;
+}
+
+.input-field.js-form-type-checkbox label {
+  top: 0;
+}
+
+// align multiple checkboxes with label
+.input-field .dropdown-content [type="checkbox"]+label {
+  top: 0;
+  display: inline;
+}
+
+abbr[title] {
+  border-bottom: none;
+}
+
+//input form field handling 
+input:not([type]), input[type=text], input[type=password], input[type=email], input[type=url], input[type=time], input[type=date], input[type=datetime], input[type=datetime-local], input[type=tel], input[type=number], input[type=search] {
+  width: inherit;
+  max-width: 100%;
+}
+
+//checkbox fix to work with materialize
+.js-form-type-checkbox {
+  label.visually-hidden {
+    position: relative!important;
+    clip: inherit;
+    visibility: hidden;
+    width: 1px;
+    display: inline-block;
+    &:before, &:after {
+      visibility: visible;
+    }
+  }
+}
+
+h4.label {
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+//instead of replacing the collapsible with materialize which can cause issues with drupal AJAX, style the default details
+details.form-wrapper {
+  @extend .collapsible;
+  text-align: left;
+  summary {
+    @extend .collapsible-header;
+    &:focus {
+      outline: 0;
+    }
+  }
+  .details-wrapper {
+    padding: 1rem 2rem; //prevent nested wrappers from providing too much z-depth
+    details.form-wrapper {
+      box-shadow: none;
+      border: 1px solid color("grey", "lighten-2")!important;
+    }
+  }
+}
+
+details.form-wrapper {
+  position: relative;
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  summary {
+    display: block;
+  }
+  &[open]>summary:after {
+    @extend .material-icons, .collapse-down;
+    line-height: 1em;
+  }
+  summary:after {
+    @extend .material-icons, .collapse-right;
+    line-height: 1em;
+  }
+}
+
+.entity-meta__header {
+  @extend .shadow-box, .z-depth-1;
+}
+
+.entity-meta__last-saved h4, .entity-meta__author h4, .field--name-created h4 {
+  font-size: 1rem;
+  font-weight: bold;
+  &:before {
+    padding-right: 10px;
+    @extend .material-icons;
+    vertical-align: baseline;
+  }
+}
+
+.entity-meta__last-saved h4 {
+  &:before {
+    content: 'date_range';
+  }
+}
+
+.form-type-date input.form-date {
+  min-width: 175px;
+}
+
+.container-inline .form-item {
+  padding-right: 10px;
+  display: inline;
+}
+
+.form--inline, .dblog-filter-form {
+  .form-actions {
+    padding: 0 10px;
+  }
+}
+
+.entity-meta__author h4 {
+  &:before {
+    content: 'person';
+  }
+}
+
+.ui-autocomplete {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1000;
+  float: left;
+  display: none;
+  min-width: 160px;
+  padding: 4px 0;
+  margin: 0 0 10px 25px;
+  list-style: none;
+  background-color: color("shades", "white");
+  border-color: color("grey", "lighten-1");
+  border-color: rgba(0, 0, 0, 0.2);
+  border-style: solid;
+  border-width: 1px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  box-shadow: none;
+  -webkit-background-clip: padding-box;
+  -moz-background-clip: padding;
+  background-clip: padding-box;
+  *border-right-width: 2px;
+  *border-bottom-width: 2px;
+}
+
+.ui-menu-item>a.ui-corner-all {
+  display: block;
+  padding: 3px 15px;
+  clear: both;
+  font-weight: normal;
+  line-height: 18px;
+  color: color("grey", "darken-2");
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.ui-state-hover, .ui-state-active {
+  @extend .white-text;
+  text-decoration: none;
+  background-color: color("blue", "darken-2");
+  border-radius: 0px;
+  -webkit-border-radius: 0px;
+  -moz-border-radius: 0px;
+  background-image: none;
+}
+
+a#edit-cancel {
+  @extend .btn-flat;
+  @extend .warning-text-color;
+}
+
+.node-multiple-delete-confirm input.form-submit {
+  @extend .error-color;
+}
+
+.confirm-form-wrapper {
+  @extend .z-depth-1;
+  padding: 1em;
+  .form-actions {
+    margin-top: 1em;
+  }
+}
+
+//machine name display/edit
+.field-suffix {
+  small {
+    padding: 0 10px;
+    span.machine-name-value {
+      font-weight: bold;
+    }
+    span.admin-link {
+      margin: 0 10px;
+      @extend .btn-flat
+    }
+  }
+}
+
+// field-prefix for inline values
+.input-field {
+  label.inline-label {
+    position: relative;
+    padding-right: 10px;
+  }
+  .field-prefix {
+    padding-right: 15px;
+  }
+}
+
+.dblog-filter-form .form-item-type, .dblog-filter-form .form-item-severity {
+  min-width: 300px;
+}
+
+.entity-moderation-wrapper {
+  padding-top: 10px;
+}
+
+.input-field.has-initial-content .select-wrapper+label {
+  position: absolute;
+  top: -14px;
+  font-size: 0.8rem;
+  transform: inherit;
+}
+
+.input-field.has-initial-content label {
+  transform: translateY(-14px) scale(0.8);
+  transform-origin: 0 0;
+}
+
+.input-field.file-field {
+  input {
+    max-width: 100%;
+  }
+  &.form-has-label {
+    margin: 45px 0;
+    padding: 45px 0 0 0;
+    >label {
+      position: absolute;
+      font-size: 0.8rem;
+    }
+  }
+}
+
+.input-field {
+  .search-wrapper {
+    margin: 0 12px;
+    input[type=search] {
+      padding-left: 0;
+      &:focus {
+        border-bottom: 1px solid color("teal", "lighten-1")
+      }
+    }
+    i.prefix {
+      font-size: 1.5rem;
+      margin-top: 12px;
+    }
+  }
+}
+
+//special case colleciton with links and no links to allow for large click area
+.help-collection .collection {
+  .collection-item.has-collection-link {
+    padding: 0;
+    a {
+      padding: 10px 20px;
+      display: block;
+      width: 100%;
+      @extend .teal-text, .lighten-1;
+      &:hover {
+        background: #ddd;
+        text-decoration: none;
+      }
+    }
+  }
+}
+
+// 'waves' input button padding fix
+i.waves-input-wrapper {
+  padding: 0!important;
+  .waves-button-input {
+    padding: 0 2em;
+    height: 100%;
+  }
+}
+
+.form-item-selected {
+  .views-ui-view-title {
+    display: inline-block;
+    padding: 5px 10px;
+    font-weight: 400;
+  }
+  .views-selected-options {
+    display: inline-block;
+    padding: 5px 10px;
+    font-weight: 300;
+    transition: all 2s ease-in;
+  }
+}
+
+//tablesaw fixes for form elements 
+.tablesaw-cell-content .form-item {
+  margin: 0;
+}
+
+.views-bulk-form-count {
+  p {
+    margin: 0;
+    line-height: 40px;
+  }
+}
+
+.layout-node-form .layout-region-node-secondary {
+  details.form-wrapper {
+    margin: 0;
+    .details-wrapper {
+      padding: 0.5rem 2rem;
+    }
+  }
+  .entity-meta__header {
+    margin-bottom: 1em;
+  }
+  .form-actions {
+    margin-top: 1em;
+  }
+}
+
+.image-style-new {
+  display: inline-block;
+  div {
+    min-width: 200px;
+    display: inline-block;
+    margin: 0;
+  }
+  i.waves-input-wrapper.input-form-submit {
+    margin: 0 1em!important;
+  }
+}
+
+.form-type-radio.form-no-label {
+  input.form-radio {
+    opacity: 1;
+    position: relative;
+    pointer-events: initial;
+  }
+}
+
+fieldset.form-wrapper {
+  span.fieldset-legend {
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 1em 0 .5em 0;
+    display: block;
+  }
+}
+
+.image-widget-data {
+  position: relative;
+}
+
+.file-field input[type=file] {
+  width: auto;
+}
+
+.has-description-after {
+  input {
+    margin-bottom: 10px!important;
+  }
+  div.description {
+    margin-bottom: 30px;
+  }
+}
+
+.container-inline label:empty:after, .container-inline .label:empty:after {
+  content: "";
+}

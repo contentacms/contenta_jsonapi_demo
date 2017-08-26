@@ -1,0 +1,10 @@
+subrequests.front-controller:
+  path: '/subrequests'
+  defaults:
+    _title: 'Returns the trace recorded by test proxy session handlers as JSON'
+    _controller: '\Drupal\subrequests\Controller\FrontController::handle'
+  methods: [GET, POST]
+  options:
+    _auth: ['basic_auth', 'cookie', 'oauth2']
+  requirements:
+    _permission: 'issue subrequests'

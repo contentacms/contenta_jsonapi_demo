@@ -1,0 +1,22 @@
+uuid: 4f195fab-c413-4a98-b49f-91c6329fe171
+langcode: en
+status: true
+dependencies:
+  enforced:
+    module:
+      - recipes_magazin_contenta
+  module:
+    - node
+    - text
+id: node.field_summary
+field_name: field_summary
+entity_type: node
+type: text_long
+settings: {  }
+module: text
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false
