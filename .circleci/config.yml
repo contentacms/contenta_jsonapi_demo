@@ -103,6 +103,6 @@ jobs:
                 command: |
                     if [ "${CIRCLE_BRANCH}" == "master" ]; then
                       $HOME/vendor/bin/terminus build:env:push -n "$TERMINUS_SITE.dev" --yes
-                      $HOME/vendor/bin/terminus build:env:install -n "$TERMINUS_SITE.dev" --site-name="$TEST_SITE_NAME" --account-mail="$ADMIN_EMAIL" --account-pass="$ADMIN_PASSWORD" --site-name="Contenta CMS" --site-mail="$ADMIN_EMAIL" -v
+                      $HOME/vendor/bin/terminus build:env:install -n "$TERMINUS_SITE.dev" --account-mail="$ADMIN_EMAIL" --account-pass="$ADMIN_PASSWORD" --site-name="Contenta CMS" --site-mail="$ADMIN_EMAIL" -v
                       $HOME/vendor/bin/terminus build:env:delete:pr -n "$TERMINUS_SITE" --yes
                     fi
