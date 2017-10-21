@@ -1,7 +1,7 @@
 subrequests.front-controller:
   path: '/subrequests'
   defaults:
-    _title: 'Returns the trace recorded by test proxy session handlers as JSON'
+    _title: 'Returns bulk execution of multiple requests'
     _controller: '\Drupal\subrequests\Controller\FrontController::handle'
   methods: [GET, POST]
   options:

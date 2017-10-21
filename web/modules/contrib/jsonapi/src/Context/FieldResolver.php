@@ -7,7 +7,7 @@ use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\TypedData\DataReferenceTargetDefinition;
 use Drupal\jsonapi\ResourceType\ResourceType;
-use Drupal\jsonapi\ResourceType\ResourceTypeRepository;
+use Drupal\jsonapi\ResourceType\ResourceTypeRepositoryInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
@@ -40,10 +40,10 @@ class FieldResolver {
    *   The field manager.
    * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entity_type_bundle_info
    *   The bundle info service.
-   * @param \Drupal\jsonapi\ResourceType\ResourceTypeRepository $resource_type_repository
+   * @param \Drupal\jsonapi\ResourceType\ResourceTypeRepositoryInterface $resource_type_repository
    *   The resource type repository.
    */
-  public function __construct(CurrentContext $current_context, EntityFieldManagerInterface $field_manager, EntityTypeBundleInfoInterface $entity_type_bundle_info, ResourceTypeRepository $resource_type_repository) {
+  public function __construct(CurrentContext $current_context, EntityFieldManagerInterface $field_manager, EntityTypeBundleInfoInterface $entity_type_bundle_info, ResourceTypeRepositoryInterface $resource_type_repository) {
     $this->currentContext = $current_context;
     $this->fieldManager = $field_manager;
     $this->entityTypeBundleInfo = $entity_type_bundle_info;
@@ -170,10 +170,7 @@ class FieldResolver {
     }
     $entity_type_id = $field_definition->getSetting('target_type');
     $handler_settings = $field_definition->getSetting('handler_settings');
-    $target_bundles = empty($handler_settings['target_bundles'])
-      ? []
-      : $handler_settings['target_bundles'];
-    if ($target_bundles === NULL) {
+    if (empty($handler_settings['target_bundles'])) {
       // If target bundles is NULL it means ALL of the bundles in the entity ID
       // are referenceable.
       $bundle_info = $this->entityTypeBundleInfo

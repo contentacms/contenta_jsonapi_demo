@@ -3,7 +3,7 @@
 namespace Drupal\jsonapi\Normalizer;
 
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\jsonapi\ResourceType\ResourceTypeRepository;
+use Drupal\jsonapi\ResourceType\ResourceTypeRepositoryInterface;
 
 /**
  * @internal
@@ -48,7 +48,7 @@ class RelationshipItem {
   /**
    * Relationship item constructor.
    *
-   * @param \Drupal\jsonapi\ResourceType\ResourceTypeRepository $resource_type_repository
+   * @param \Drupal\jsonapi\ResourceType\ResourceTypeRepositoryInterface $resource_type_repository
    *   The JSON API resource type repository.
    * @param \Drupal\Core\Entity\EntityInterface $target_entity
    *   The entity this relationship points to.
@@ -59,7 +59,7 @@ class RelationshipItem {
    * @param array $metadata
    *   The list of metadata associated with this relationship item value.
    */
-  public function __construct(ResourceTypeRepository $resource_type_repository, EntityInterface $target_entity, Relationship $parent, $target_key = 'target_id', array $metadata = []) {
+  public function __construct(ResourceTypeRepositoryInterface $resource_type_repository, EntityInterface $target_entity, Relationship $parent, $target_key = 'target_id', array $metadata = []) {
     $this->targetResourceType = $resource_type_repository->get(
       $target_entity->getEntityTypeId(),
       $target_entity->bundle()

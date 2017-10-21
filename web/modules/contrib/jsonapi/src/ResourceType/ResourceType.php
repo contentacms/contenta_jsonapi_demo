@@ -10,7 +10,7 @@ namespace Drupal\jsonapi\ResourceType;
  *
  * @see \Drupal\jsonapi\ResourceType\ResourceTypeRepository
  *
- * @internal
+ * @api
  */
 class ResourceType {
 

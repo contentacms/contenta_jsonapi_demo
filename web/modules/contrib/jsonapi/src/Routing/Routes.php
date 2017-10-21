@@ -5,7 +5,7 @@ namespace Drupal\jsonapi\Routing;
 use Drupal\Core\Authentication\AuthenticationCollectorInterface;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Field\EntityReferenceFieldItemList;
-use Drupal\jsonapi\ResourceType\ResourceTypeRepository;
+use Drupal\jsonapi\ResourceType\ResourceTypeRepositoryInterface;
 use Drupal\jsonapi\Resource\JsonApiDocumentTopLevel;
 use Symfony\Cmf\Component\Routing\RouteObjectInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -31,7 +31,7 @@ class Routes implements ContainerInjectionInterface {
   /**
    * The JSON API resource type repository.
    *
-   * @var \Drupal\jsonapi\ResourceType\ResourceTypeRepository
+   * @var \Drupal\jsonapi\ResourceType\ResourceTypeRepositoryInterface
    */
   protected $resourceTypeRepository;
 
@@ -52,12 +52,12 @@ class Routes implements ContainerInjectionInterface {
   /**
    * Instantiates a Routes object.
    *
-   * @param \Drupal\jsonapi\ResourceType\ResourceTypeRepository $resource_type_repository
+   * @param \Drupal\jsonapi\ResourceType\ResourceTypeRepositoryInterface $resource_type_repository
    *   The JSON API resource type repository.
    * @param \Drupal\Core\Authentication\AuthenticationCollectorInterface $auth_collector
    *   The authentication provider collector.
    */
-  public function __construct(ResourceTypeRepository $resource_type_repository, AuthenticationCollectorInterface $auth_collector) {
+  public function __construct(ResourceTypeRepositoryInterface $resource_type_repository, AuthenticationCollectorInterface $auth_collector) {
     $this->resourceTypeRepository = $resource_type_repository;
     $this->authCollector = $auth_collector;
   }
@@ -66,7 +66,7 @@ class Routes implements ContainerInjectionInterface {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    /* @var \Drupal\jsonapi\ResourceType\ResourceTypeRepository $resource_type_repository */
+    /* @var \Drupal\jsonapi\ResourceType\ResourceTypeRepositoryInterface $resource_type_repository */
     $resource_type_repository = $container->get('jsonapi.resource_type.repository');
     /* @var \Drupal\Core\Authentication\AuthenticationCollectorInterface $auth_collector */
     $auth_collector = $container->get('authentication_collector');

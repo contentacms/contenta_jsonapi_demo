@@ -6,6 +6,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
+use Drupal\jsonapi\Context\FieldResolver;
 use Drupal\jsonapi\ResourceType\ResourceType;
 use Drupal\jsonapi\Normalizer\JsonApiDocumentTopLevelNormalizer;
 use Drupal\jsonapi\LinkManager\LinkManager;
@@ -37,6 +38,7 @@ class JsonApiDocumentTopLevelNormalizerTest extends UnitTestCase {
     $link_manager = $this->prophesize(LinkManager::class);
     $current_context_manager = $this->prophesize(CurrentContext::class);
     $resource_type_repository = $this->prophesize(ResourceTypeRepository::class);
+    $field_resolver = $this->prophesize(FieldResolver::class);
 
     $resource_type = $this->prophesize(ResourceType::class);
     $resource_type
@@ -77,7 +79,8 @@ class JsonApiDocumentTopLevelNormalizerTest extends UnitTestCase {
       $link_manager->reveal(),
       $current_context_manager->reveal(),
       $entity_type_manager->reveal(),
-      $resource_type_repository->reveal()
+      $resource_type_repository->reveal(),
+      $field_resolver->reveal()
     );
 
     $serializer = $this->prophesize(DenormalizerInterface::class);

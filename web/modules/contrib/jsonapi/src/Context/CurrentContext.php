@@ -3,7 +3,7 @@
 namespace Drupal\jsonapi\Context;
 
 use Drupal\Core\Routing\RouteMatchInterface;
-use Drupal\jsonapi\ResourceType\ResourceTypeRepository;
+use Drupal\jsonapi\ResourceType\ResourceTypeRepositoryInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
@@ -16,7 +16,7 @@ class CurrentContext {
   /**
    * The JSON API resource type repository.
    *
-   * @var \Drupal\jsonapi\ResourceType\ResourceTypeRepository
+   * @var \Drupal\jsonapi\ResourceType\ResourceTypeRepositoryInterface
    */
   protected $resourceTypeRepository;
 
@@ -44,14 +44,14 @@ class CurrentContext {
   /**
    * Creates a CurrentContext object.
    *
-   * @param \Drupal\jsonapi\ResourceType\ResourceTypeRepository $resource_type_repository
+   * @param \Drupal\jsonapi\ResourceType\ResourceTypeRepositoryInterface $resource_type_repository
    *   The resource type repository.
    * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
    *   The request stack.
    * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
    *   The current route match.
    */
-  public function __construct(ResourceTypeRepository $resource_type_repository, RequestStack $request_stack, RouteMatchInterface $route_match) {
+  public function __construct(ResourceTypeRepositoryInterface $resource_type_repository, RequestStack $request_stack, RouteMatchInterface $route_match) {
     $this->resourceTypeRepository = $resource_type_repository;
     $this->requestStack = $request_stack;
     $this->routeMatch = $route_match;

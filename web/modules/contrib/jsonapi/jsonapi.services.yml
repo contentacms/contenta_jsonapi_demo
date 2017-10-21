@@ -48,7 +48,7 @@ services:
       - { name: normalizer, priority: 21 }
   serializer.normalizer.jsonapi_document_toplevel.jsonapi:
     class: Drupal\jsonapi\Normalizer\JsonApiDocumentTopLevelNormalizer
-    arguments: ['@jsonapi.link_manager', '@jsonapi.current_context', '@entity_type.manager', '@jsonapi.resource_type.repository']
+    arguments: ['@jsonapi.link_manager', '@jsonapi.current_context', '@entity_type.manager', '@jsonapi.resource_type.repository', '@jsonapi.field_resolver']
     tags:
       - { name: normalizer, priority: 22 }
   serializer.normalizer.entity_reference_field.jsonapi:

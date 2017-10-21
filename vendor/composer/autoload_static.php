@@ -433,6 +433,13 @@ class ComposerStaticInit62e172c507c680088a1c4d474edd248d
                 0 => __DIR__ . '/..' . '/instaclick/php-webdriver/lib',
             ),
         ),
+        'U' => 
+        array (
+            'Utilities\\' => 
+            array (
+                0 => __DIR__ . '/..' . '/skyscanner/jsonpath/src/Skyscanner',
+            ),
+        ),
         'T' => 
         array (
             'Twig_' => 
@@ -463,6 +470,10 @@ class ComposerStaticInit62e172c507c680088a1c4d474edd248d
         ),
         'J' => 
         array (
+            'JsonPath\\' => 
+            array (
+                0 => __DIR__ . '/..' . '/skyscanner/jsonpath/src/Skyscanner',
+            ),
             'JakubOnderka\\PhpConsoleHighlighter' => 
             array (
                 0 => __DIR__ . '/..' . '/jakub-onderka/php-console-highlighter/src',
@@ -3340,6 +3351,9 @@ class ComposerStaticInit62e172c507c680088a1c4d474edd248d
         'JakubOnderka\\PhpConsoleColor\\ConsoleColor' => __DIR__ . '/..' . '/jakub-onderka/php-console-color/src/JakubOnderka/PhpConsoleColor/ConsoleColor.php',
         'JakubOnderka\\PhpConsoleColor\\InvalidStyleException' => __DIR__ . '/..' . '/jakub-onderka/php-console-color/src/JakubOnderka/PhpConsoleColor/InvalidStyleException.php',
         'JakubOnderka\\PhpConsoleHighlighter\\Highlighter' => __DIR__ . '/..' . '/jakub-onderka/php-console-highlighter/src/JakubOnderka/PhpConsoleHighlighter/Highlighter.php',
+        'JsonPath\\InvalidJsonException' => __DIR__ . '/..' . '/skyscanner/jsonpath/src/Skyscanner/JsonPath/InvalidJsonException.php',
+        'JsonPath\\InvalidJsonPathException' => __DIR__ . '/..' . '/skyscanner/jsonpath/src/Skyscanner/JsonPath/InvalidJsonPathException.php',
+        'JsonPath\\JsonObject' => __DIR__ . '/..' . '/skyscanner/jsonpath/src/Skyscanner/JsonPath/JsonObject.php',
         'Lcobucci\\JWT\\Builder' => __DIR__ . '/..' . '/lcobucci/jwt/src/Builder.php',
         'Lcobucci\\JWT\\Claim' => __DIR__ . '/..' . '/lcobucci/jwt/src/Claim.php',
         'Lcobucci\\JWT\\Claim\\Basic' => __DIR__ . '/..' . '/lcobucci/jwt/src/Claim/Basic.php',
@@ -5581,6 +5595,7 @@ class ComposerStaticInit62e172c507c680088a1c4d474edd248d
         'Twig_TokenStream' => __DIR__ . '/..' . '/twig/twig/lib/Twig/TokenStream.php',
         'Twig_Util_DeprecationCollector' => __DIR__ . '/..' . '/twig/twig/lib/Twig/Util/DeprecationCollector.php',
         'Twig_Util_TemplateDirIterator' => __DIR__ . '/..' . '/twig/twig/lib/Twig/Util/TemplateDirIterator.php',
+        'Utilities\\ArraySlice' => __DIR__ . '/..' . '/skyscanner/jsonpath/src/Skyscanner/Utilities/ArraySlice.php',
         'WebDriver\\AbstractWebDriver' => __DIR__ . '/..' . '/instaclick/php-webdriver/lib/WebDriver/AbstractWebDriver.php',
         'WebDriver\\AppCacheStatus' => __DIR__ . '/..' . '/instaclick/php-webdriver/lib/WebDriver/AppCacheStatus.php',
         'WebDriver\\ApplicationCache' => __DIR__ . '/..' . '/instaclick/php-webdriver/lib/WebDriver/ApplicationCache.php',

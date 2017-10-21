@@ -18,6 +18,7 @@ class FileDownloadUrlTest extends KernelTestBase {
     'jsonapi',
     'file',
     'serialization',
+    'text',
     'user',
   ];
 
@@ -68,6 +69,8 @@ class FileDownloadUrlTest extends KernelTestBase {
       $this->assertContains('simpletest', $value);
       $this->assertContains($this->filename, $value);
     });
+    $violationList = $this->file->validate();
+    $this->assertEquals(0, $violationList->count());
   }
 
 }

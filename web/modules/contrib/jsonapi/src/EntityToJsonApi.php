@@ -6,7 +6,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\jsonapi\Resource\JsonApiDocumentTopLevel;
-use Drupal\jsonapi\ResourceType\ResourceTypeRepository;
+use Drupal\jsonapi\ResourceType\ResourceTypeRepositoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Serializer\Serializer;
 
@@ -30,7 +30,7 @@ class EntityToJsonApi {
   protected $serializer;
 
   /**
-   * @var \Drupal\jsonapi\ResourceType\ResourceTypeRepository
+   * @var \Drupal\jsonapi\ResourceType\ResourceTypeRepositoryInterface
    */
   protected $resourceTypeRepository;
 
@@ -42,7 +42,7 @@ class EntityToJsonApi {
    * @param \Drupal\Core\Session\AccountProxyInterface $current_user
    *   The currently logged in user.
    */
-  public function __construct(Serializer $serializer, ResourceTypeRepository $resource_type_repository, AccountProxyInterface $current_user) {
+  public function __construct(Serializer $serializer, ResourceTypeRepositoryInterface $resource_type_repository, AccountProxyInterface $current_user) {
     $this->serializer = $serializer;
     $this->resourceTypeRepository = $resource_type_repository;
     $this->currentUser = $current_user;

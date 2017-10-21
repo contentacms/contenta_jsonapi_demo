@@ -1,74 +1,67 @@
 <?php
 
-
 namespace Drupal\subrequests\Normalizer;
 
 use Drupal\Component\Serialization\Json;
-use Drupal\Component\Utility\NestedArray;
-use Drupal\subrequests\Blueprint\Parser;
-use Drupal\subrequests\Blueprint\RequestTree;
-use Symfony\Component\HttpFoundation\HeaderBag;
+use Drupal\subrequests\Subrequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
+/**
+ * Creates a request object for each Subrequest.
+ */
 class JsonSubrequestDenormalizer implements DenormalizerInterface {
+
   /**
    * Denormalizes data back into an object of the given class.
    *
-   * @param mixed $data data to restore
-   * @param string $class the expected class to instantiate
-   * @param string $format format the given data was extracted from
-   * @param array $context options available to the denormalizer
+   * @param mixed $data
+   *   data to restore.
+   * @param string $class
+   *   the expected class to instantiate.
+   * @param string $format
+   *   format the given data was extracted from.
+   * @param array $context
+   *   options available to the denormalizer.
    *
    * @return object
    */
   public function denormalize($data, $class, $format = NULL, array $context = []) {
-    if (!Parser::isValidSubrequest($data)) {
-      throw new \RuntimeException('The provided blueprint contains an invalid subrequest.');
+    /** @var \Drupal\subrequests\Subrequest $data */
+    $path = parse_url($data->uri, PHP_URL_PATH);
+    $query = parse_url($data->uri, PHP_URL_QUERY) ?: [];
+    if (isset($query) && !is_array($query)) {
+      $_query = [];
+      parse_str($query, $_query);
+      $query = $_query;
     }
-    $data['path'] = parse_url($data['uri'], PHP_URL_PATH);
-    $data['query'] = parse_url($data['uri'], PHP_URL_QUERY) ?: [];
-    if (isset($data['query']) && !is_array($data['query'])) {
-      $query = [];
-      parse_str($data['query'], $query);
-      $data['query'] = $query;
-    }
-    $data = NestedArray::mergeDeep([
-      'body' => '',
-      'headers' => [],
-    ], $data, parse_url($data['path']));
 
     /** @var \Symfony\Component\HttpFoundation\Request $master_request */
     $master_request = $context['master_request'];
 
     $request = Request::create(
-      $data['path'],
-      static::getMethodFromAction($data['action']),
-      empty($data['body']) ? $data['query'] : Json::decode($data['body']),
-      $master_request->cookies ? (array) $master_request->cookies->getIterator() : [],
-      $master_request->files ? (array) $master_request->files->getIterator() : [],
+      $path,
+      static::getMethodFromAction($data->action),
+      empty($data->body) ? $query : $data->body,
+      $master_request->cookies ? $master_request->cookies->all() : [],
+      $master_request->files ? $master_request->files->all() : [],
       [],
-      empty($data['body']) ? '' : $data['body']
+      empty($data->body) ? '' : Json::encode($data->body)
     );
     // Maintain the same session as in the master request.
-    $request->setSession($master_request->getSession());
+    $session = $master_request->getSession();
+    $request->setSession($session);
     // Replace the headers by the ones in the subrequest.
-    foreach ($data['headers'] as $name => $value) {
+    foreach ($data->headers as $name => $value) {
       $request->headers->set($name, $value);
     }
     $this::fixBasicAuth($request);
 
     // Add the content ID to the sub-request.
-    $content_id = empty($data['requestId'])
+    $content_id = empty($data->requestId)
       ? md5(serialize($data))
-      : $data['requestId'];
+      : $data->requestId;
     $request->headers->set('Content-ID', '<' . $content_id . '>');
-    $request->attributes->set(RequestTree::SUBREQUEST_ID, $content_id);
-    // If there is a parent, then add the ID to construct the tree.
-    if (!empty($data['waitFor'])) {
-      $request->attributes
-        ->set(RequestTree::SUBREQUEST_PARENT_ID, $data['waitFor']);
-    }
 
     return $request;
   }
@@ -77,17 +70,18 @@ class JsonSubrequestDenormalizer implements DenormalizerInterface {
    * Checks whether the given class is supported for denormalization by this
    * normalizer.
    *
-   * @param mixed $data Data to denormalize from
-   * @param string $type The class to which the data should be denormalized
-   * @param string $format The format being deserialized from
+   * @param mixed $data
+   *   Data to denormalize from.
+   * @param string $type
+   *   The class to which the data should be denormalized.
+   * @param string $format
+   *   The format being deserialized from.
    *
    * @return bool
    */
   public function supportsDenormalization($data, $type, $format = NULL) {
-    return $format === 'json'
-      && $type === Request::class
-      && is_array($data)
-      && JsonBlueprintDenormalizer::arrayIsKeyed($data);
+    return $type === Request::class
+      && $data instanceof Subrequest;
   }
 
   /**
@@ -103,16 +97,22 @@ class JsonSubrequestDenormalizer implements DenormalizerInterface {
     switch ($action) {
       case 'create':
         return Request::METHOD_POST;
+
       case 'update':
         return Request::METHOD_PATCH;
+
       case 'replace':
         return Request::METHOD_PUT;
+
       case 'delete':
         return Request::METHOD_DELETE;
+
       case 'exists':
         return Request::METHOD_HEAD;
+
       case 'discover':
         return Request::METHOD_OPTIONS;
+
       default:
         return Request::METHOD_GET;
     }
@@ -136,4 +136,5 @@ class JsonSubrequestDenormalizer implements DenormalizerInterface {
       }
     }
   }
+
 }

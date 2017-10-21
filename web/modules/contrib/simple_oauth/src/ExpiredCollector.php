@@ -4,8 +4,9 @@ namespace Drupal\simple_oauth;
 
 use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Entity\Query\QueryException;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\simple_oauth\Entity\Oauth2ClientInterface;
+use Drupal\consumers\Entity\Consumer;
 
 /**
  * Service in charge of deleting or expiring tokens that cannot be used anymore.
@@ -36,7 +37,7 @@ class ExpiredCollector {
    *   The date time service.
    */
   public function __construct(EntityTypeManagerInterface $entity_type_manager, TimeInterface $date_time) {
-    $this->clientStorage = $entity_type_manager->getStorage('oauth2_client');
+    $this->clientStorage = $entity_type_manager->getStorage('consumer');
     $this->tokenStorage = $entity_type_manager->getStorage('oauth2_token');
     $this->dateTime = $date_time;
   }
@@ -74,9 +75,16 @@ class ExpiredCollector {
       : [];
     // Also collect the tokens of the clients that have this account as the
     // default user.
-    $clients = array_values($this->clientStorage->loadByProperties([
-      'user_id' => $account->id(),
-    ]));
+    try {
+      $clients = array_values($this->clientStorage->loadByProperties([
+        'user_id' => $account->id(),
+      ]));
+    }
+    catch (QueryException $exception) {
+      // This happens when simple_oauth_extras is not enabled because the
+      // 'user_id' field is not available.
+      return $output;
+    }
     // Append all the tokens for each of the clients having this account as the
     // default.
     $tokens = array_reduce($clients, function ($carry, $client) {
@@ -93,13 +101,13 @@ class ExpiredCollector {
   /**
    * Collect all the tokens associated a particular client.
    *
-   * @param \Drupal\simple_oauth\Entity\Oauth2ClientInterface $client
+   * @param \Drupal\consumers\Entity\Consumer $client
    *   The account.
    *
    * @return \Drupal\simple_oauth\Entity\Oauth2TokenInterface[]
    *   The tokens.
    */
-  public function collectForClient(Oauth2ClientInterface $client) {
+  public function collectForClient(Consumer $client) {
     $query = $this->tokenStorage->getQuery();
     $query->condition('client', $client->id());
     if (!$entity_ids = $query->execute()) {

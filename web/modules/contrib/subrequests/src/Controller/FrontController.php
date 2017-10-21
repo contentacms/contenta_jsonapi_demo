@@ -1,44 +1,46 @@
 <?php
 
-
 namespace Drupal\subrequests\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\subrequests\Blueprint\BlueprintManager;
 use Drupal\subrequests\Blueprint\Parser;
 use Drupal\subrequests\Blueprint\RequestTree;
+use Drupal\subrequests\SubrequestsManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
+/**
+ * Front controller to process Subrequests requests.
+ */
 class FrontController extends ControllerBase {
 
   /**
-   * @var \Drupal\subrequests\Blueprint\Parser
+   * @var \Drupal\subrequests\Blueprint\BlueprintManager
    */
-  protected $parser;
+  protected $blueprintManager;
 
   /**
-   * @var \Symfony\Component\HttpKernel\HttpKernelInterface
+   * @var \Drupal\subrequests\SubrequestsManager
    */
-  protected $httpKernel;
+  protected $subrequestsManager;
 
   /**
    * FrontController constructor.
    */
-  public function __construct(Parser $parser, HttpKernelInterface $http_kernel) {
-    $this->parser = $parser;
-    $this->httpKernel = $http_kernel;
+  public function __construct(BlueprintManager $blueprint_manager, SubrequestsManager $subrequests_manager) {
+    $this->blueprintManager = $blueprint_manager;
+    $this->subrequestsManager = $subrequests_manager;
   }
-
 
   /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('subrequests.blueprint_parser'),
-      $container->get('http_kernel')
+      $container->get('subrequests.blueprint_manager'),
+      $container->get('subrequests.subrequests_manager')
     );
   }
 
@@ -46,46 +48,23 @@ class FrontController extends ControllerBase {
    * Controller handler.
    */
   public function handle(Request $request) {
-    $this->parser->parseRequest($request);
-    $responses = [];
-    /** @var \Drupal\subrequests\Blueprint\RequestTree $tree */
-    $root_tree = $request->attributes->get(RequestTree::SUBREQUEST_TREE);
-    $trees = [$root_tree];
-    // Handle all the sub-requests.
-    while (!$root_tree->isDone()) {
-      // Requests in the current level may have references to older responses.
-      // This step resolves those.
-      array_walk($trees, function (RequestTree $tree) use ($responses) {
-        $tree->dereference($responses);
-      });
-      // Get all the requests in the trees for the previous pass.
-      $requests = array_reduce($trees, function (array $carry, RequestTree $tree) {
-        return array_merge($carry, $tree->getRequests());
-      }, []);
-      // Get the next batch of trees for the next level.
-      $trees = array_reduce($trees, function (array $carry, RequestTree $tree) {
-        return array_merge($carry, $tree->getSubTrees());
-      }, []);
-      // Handle the requests for the trees at this level and gather the
-      // responses.
-      $level_responses = array_map(function (Request $request) {
-        $response = $this->httpKernel->handle($request, HttpKernelInterface::MASTER_REQUEST);
-        // Manually mark the request as done. We cannot use a response
-        // subscriber, since it may not fire if the subrequest is cached by
-        // PageCache.
-        $request->attributes->set(RequestTree::SUBREQUEST_DONE, TRUE);
-        $id = $request->headers->get('Content-ID');
-        $response->headers->set('Content-ID', $id);
-
-        return $response;
-      }, $requests);
-      $responses = array_merge(
-        $responses,
-        $level_responses
-      );
+    $data = '';
+    if ($request->getMethod() === Request::METHOD_POST) {
+      $data = $request->getContent();
     }
-
-    return $this->parser->combineResponses($responses);
+    elseif ($request->getMethod() === Request::METHOD_GET) {
+      $data = $request->query->get('query', '');
+    }
+    $tree = $this->blueprintManager->parse($data, $request);
+    $responses = $this->subrequestsManager->request($tree);
+    $master_request = $tree->getMasterRequest();
+    $output_format = $master_request->getRequestFormat();
+    if ($output_format === 'html') {
+      // Change the default format from html to multipart-related.
+      $output_format = 'multipart-related';
+    }
+    $master_request->getMimeType($output_format);
+    return $this->blueprintManager->combineResponses($responses, $output_format);
   }
 
 }

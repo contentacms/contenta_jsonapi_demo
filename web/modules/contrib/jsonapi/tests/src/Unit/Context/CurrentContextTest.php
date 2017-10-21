@@ -61,7 +61,7 @@ class CurrentContextTest extends UnitTestCase {
    */
   public function setUp() {
     // Create a mock for the entity field manager.
-    $this->fieldManager = $this->prophesize(EntityFieldManagerInterface::CLASS)->reveal();
+    $this->fieldManager = $this->prophesize(EntityFieldManagerInterface::class)->reveal();
 
     // Create a mock for the current route match.
     $this->currentRoute = new Route(
@@ -71,7 +71,7 @@ class CurrentContextTest extends UnitTestCase {
     );
 
     // Create a mock for the ResourceTypeRepository service.
-    $resource_type_repository_prophecy = $this->prophesize(ResourceTypeRepository::CLASS);
+    $resource_type_repository_prophecy = $this->prophesize(ResourceTypeRepository::class);
     $resource_type_repository_prophecy->get('node', 'article')
       ->willReturn(new ResourceType('node', 'article', NodeInterface::class));
     $this->resourceTypeRepository = $resource_type_repository_prophecy->reveal();

@@ -6,7 +6,7 @@ use Drupal\Core\Access\AccessibleInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\jsonapi\ResourceType\ResourceTypeRepository;
+use Drupal\jsonapi\ResourceType\ResourceTypeRepositoryInterface;
 use Drupal\jsonapi\Resource\EntityCollection;
 
 /**
@@ -42,7 +42,7 @@ class Relationship implements AccessibleInterface {
   /**
    * The JSON API resource type repository.
    *
-   * @var \Drupal\jsonapi\ResourceType\ResourceTypeRepository
+   * @var \Drupal\jsonapi\ResourceType\ResourceTypeRepositoryInterface
    */
   protected $resourceTypeRepository;
 
@@ -56,7 +56,7 @@ class Relationship implements AccessibleInterface {
   /**
    * Relationship constructor.
    *
-   * @param \Drupal\jsonapi\ResourceType\ResourceTypeRepository $resource_type_repository
+   * @param \Drupal\jsonapi\ResourceType\ResourceTypeRepositoryInterface $resource_type_repository
    *   The JSON API resource type repository.
    * @param string $field_name
    *   The name of the relationship.
@@ -72,7 +72,7 @@ class Relationship implements AccessibleInterface {
    *   An array of additional properties stored by the field and that will be
    *   added to the meta in the relationship.
    */
-  public function __construct(ResourceTypeRepository $resource_type_repository, $field_name, $cardinality = FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED, EntityCollection $entities, EntityInterface $host_entity, $target_key = 'target_id', array $entity_list_metadata = []) {
+  public function __construct(ResourceTypeRepositoryInterface $resource_type_repository, $field_name, $cardinality = FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED, EntityCollection $entities, EntityInterface $host_entity, $target_key = 'target_id', array $entity_list_metadata = []) {
     $this->resourceTypeRepository = $resource_type_repository;
     $this->propertyName = $field_name;
     $this->cardinality = $cardinality;

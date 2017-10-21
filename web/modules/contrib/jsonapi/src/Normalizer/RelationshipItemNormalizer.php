@@ -6,7 +6,7 @@ use Drupal\Core\Cache\RefinableCacheableDependencyInterface;
 use Drupal\Core\Cache\RefinableCacheableDependencyTrait;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\jsonapi\Normalizer\Value\RelationshipItemNormalizerValue;
-use Drupal\jsonapi\ResourceType\ResourceTypeRepository;
+use Drupal\jsonapi\ResourceType\ResourceTypeRepositoryInterface;
 use Drupal\jsonapi\Controller\EntityResource;
 use Drupal\serialization\EntityResolver\UuidReferenceInterface;
 
@@ -29,7 +29,7 @@ class RelationshipItemNormalizer extends FieldItemNormalizer implements UuidRefe
   /**
    * The JSON API resource type repository.
    *
-   * @var \Drupal\jsonapi\ResourceType\ResourceTypeRepository
+   * @var \Drupal\jsonapi\ResourceType\ResourceTypeRepositoryInterface
    */
   protected $resourceTypeRepository;
 
@@ -43,12 +43,12 @@ class RelationshipItemNormalizer extends FieldItemNormalizer implements UuidRefe
   /**
    * Instantiates a RelationshipItemNormalizer object.
    *
-   * @param \Drupal\jsonapi\ResourceType\ResourceTypeRepository $resource_type_repository
+   * @param \Drupal\jsonapi\ResourceType\ResourceTypeRepositoryInterface $resource_type_repository
    *   The JSON API resource type repository.
    * @param \Drupal\jsonapi\Normalizer\JsonApiDocumentTopLevelNormalizer $jsonapi_document_toplevel_normalizer
    *   The document root normalizer for the include.
    */
-  public function __construct(ResourceTypeRepository $resource_type_repository, JsonApiDocumentTopLevelNormalizer $jsonapi_document_toplevel_normalizer) {
+  public function __construct(ResourceTypeRepositoryInterface $resource_type_repository, JsonApiDocumentTopLevelNormalizer $jsonapi_document_toplevel_normalizer) {
     $this->resourceTypeRepository = $resource_type_repository;
     $this->jsonapiDocumentToplevelNormalizer = $jsonapi_document_toplevel_normalizer;
   }

@@ -4,7 +4,7 @@ namespace Drupal\Tests\simple_oauth_extras\Functional;
 
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Url;
-use Drupal\simple_oauth\Entity\Oauth2Client;
+use Drupal\consumers\Entity\Consumer;
 use Drupal\Tests\BrowserTestBase;
 use Drupal\Tests\simple_oauth\Functional\RequestHelperTrait;
 use Drupal\user\Entity\Role;
@@ -35,7 +35,7 @@ class RolesNegotiationFunctionalTest extends BrowserTestBase {
   protected $tokenTestUrl;
 
   /**
-   * @var \Drupal\simple_oauth\Entity\Oauth2ClientInterface
+   * @var \Drupal\consumers\Entity\Consumer
    */
   protected $client;
 
@@ -104,8 +104,8 @@ class RolesNegotiationFunctionalTest extends BrowserTestBase {
     $this->user->addRole('bar');
     $this->user->save();
 
-    // Create a Oauth2Client.
-    $this->client = Oauth2Client::create([
+    // Create a Consumer.
+    $this->client = Consumer::create([
       'owner_id' => 1,
       'user_id' => $this->user->id(),
       'label' => $this->getRandomGenerator()->name(),
@@ -119,8 +119,15 @@ class RolesNegotiationFunctionalTest extends BrowserTestBase {
     $path = $this->container->get('module_handler')
       ->getModule('simple_oauth')
       ->getPath();
-    $this->publicKeyPath = DRUPAL_ROOT . '/' . $path . '/tests/certificates/public.key';
-    $this->privateKeyPath = DRUPAL_ROOT . '/' . $path . '/tests/certificates/private.key';
+    $temp_dir = sys_get_temp_dir();
+    $public_path = '/' . $path . '/tests/certificates/public.key';
+    $private_path = '/' . $path . '/tests/certificates/private.key';
+    file_put_contents($temp_dir . '/public.key', file_get_contents(DRUPAL_ROOT . $public_path));
+    file_put_contents($temp_dir . '/private.key', file_get_contents(DRUPAL_ROOT . $private_path));
+    chmod($temp_dir . '/public.key', 0660);
+    chmod($temp_dir . '/private.key', 0660);
+    $this->publicKeyPath = $temp_dir . '/public.key';
+    $this->privateKeyPath = $temp_dir . '/private.key';
     $settings = $this->config('simple_oauth.settings');
     $settings->set('public_key', $this->publicKeyPath);
     $settings->set('private_key', $this->privateKeyPath);

@@ -1,18 +1,29 @@
 <?php
 
-
 namespace Drupal\subrequests\Normalizer;
 
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
+/**
+ * Normalizes multiple response objects into a single string.
+ */
 class MultiresponseNormalizer implements NormalizerInterface {
 
   /**
    * {@inheritdoc}
    */
   public function normalize($object, $format = NULL, array $context = []) {
-    $delimiter = $context['delimiter'];
+    $delimiter = md5(microtime());
+
+    // Prepare the root content type header.
+    $content_type = sprintf(
+      'multipart/related; boundary="%s", type=%s',
+      $delimiter,
+      $context['sub-content-type']
+    );
+    $headers = ['Content-Type' => $content_type];
+
     $separator = sprintf("\r\n--%s\r\n", $delimiter);
     // Join the content responses with the separator.
     $content_items = array_map(function (Response $part_response) {
@@ -23,7 +34,11 @@ class MultiresponseNormalizer implements NormalizerInterface {
         $part_response->getContent()
       );
     }, (array) $object);
-    return sprintf("--%s\r\n", $delimiter) . implode($separator, $content_items) . sprintf("\r\n--%s--", $delimiter);
+    $content = sprintf("--%s\r\n", $delimiter) . implode($separator, $content_items) . sprintf("\r\n--%s--", $delimiter);
+    return [
+      'content' => $content,
+      'headers' => $headers,
+    ];
   }
 
   /**

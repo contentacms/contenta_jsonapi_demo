@@ -1,21 +1,40 @@
 <?php
 
-
 namespace Drupal\subrequests\Normalizer;
 
-use Drupal\subrequests\Blueprint\RequestTree;
-use Symfony\Component\HttpFoundation\Request;
+use Drupal\Component\Serialization\Json;
+use Drupal\Component\Uuid\Php;
+use Drupal\subrequests\Subrequest;
+use Drupal\subrequests\SubrequestsTree;
+use JsonSchema\Validator;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\SerializerAwareInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Serializer\Serializer;
 
+/**
+ * Denormalizer that builds the blueprint based on the incoming blueprint.
+ */
 class JsonBlueprintDenormalizer implements DenormalizerInterface, SerializerAwareInterface {
 
   /**
    * @var \Symfony\Component\Serializer\Serializer
    */
   protected $serializer;
+
+  /**
+   * The Subrequests logger channel.
+   *
+   * @var \Psr\Log\LoggerInterface
+   */
+  protected $logger;
+
+  public function __construct(LoggerInterface $logger) {
+    $this->logger = $logger;
+  }
+
 
   /**
    * {@inheritdoc}
@@ -31,40 +50,15 @@ class JsonBlueprintDenormalizer implements DenormalizerInterface, SerializerAwar
    * {@inheritdoc}
    */
   public function denormalize($data, $class, $format = NULL, array $context = []) {
-    // The top level is an array of normalized requests.
-    $requests = array_map(function ($item) use ($format, $context) {
-      return $this->serializer->denormalize($item, Request::class, $format, $context);
+    assert(
+      '$this->validateInput($data)',
+      'The input blueprint failed validation (see the logs for details). Please report this in the issue queue on drupal.org'
+    );
+    $data = array_map([$this, 'fillDefaults'], $data);
+    $subrequests = array_map(function ($item) {
+      return new Subrequest($item);
     }, $data);
-    // We want to create one tree per parent, but for that we need to identify
-    // the parents first.
-    $requests_per_parent = array_reduce($requests, function (array $carry, Request $request) {
-      $parent_id = $request->attributes
-        ->get(RequestTree::SUBREQUEST_PARENT_ID, RequestTree::ROOT_TREE_ID);
-      if (empty($carry[$parent_id])) {
-        $carry[$parent_id] = [];
-      }
-      $carry[$parent_id][] = $request;
-      return $carry;
-    }, []);
-    // Now get all the requests for the root parent to create the root tree.
-    $root_tree = new RequestTree($requests_per_parent[RequestTree::ROOT_TREE_ID]);
-    unset($requests_per_parent[RequestTree::ROOT_TREE_ID]);
-
-    // Iterate through all the parents to find them in the tree. The attach the
-    // sub-tree to the root.
-    // TODO: If a tree hangs from a parent that is not attached to the root, then this process may fail.
-    foreach ($requests_per_parent as $parent_id => $children_requests) {
-      $parent_requests = array_filter($requests, function (Request $request) use ($parent_id) {
-        return $request->attributes->get(RequestTree::SUBREQUEST_ID) == $parent_id;
-      });
-      $parent_request = reset($parent_requests);
-      $parent_request->attributes->set(
-        RequestTree::SUBREQUEST_TREE,
-        new RequestTree($children_requests, $parent_id)
-      );
-    }
-
-    return $root_tree;
+    return $this->buildExecutionSequence($subrequests);
   }
 
   /**
@@ -72,7 +66,7 @@ class JsonBlueprintDenormalizer implements DenormalizerInterface, SerializerAwar
    */
   public function supportsDenormalization($data, $type, $format = NULL) {
     return $format === 'json'
-      && $type === RequestTree::class
+      && $type === SubrequestsTree::class
       && is_array($data)
       && !static::arrayIsKeyed($data);
   }
@@ -86,7 +80,7 @@ class JsonBlueprintDenormalizer implements DenormalizerInterface, SerializerAwar
    * @return bool
    *   True if the array is keyed.
    */
-  public static function arrayIsKeyed(array $input) {
+  protected static function arrayIsKeyed(array $input) {
     $keys = array_keys($input);
     // If the array does not start at 0, it is not numeric.
     if ($keys[0] !== 0) {
@@ -105,6 +99,109 @@ class JsonBlueprintDenormalizer implements DenormalizerInterface, SerializerAwar
       }
     }
     return FALSE;
+  }
+
+  /**
+   * Fill the defaults.
+   *
+   * @param array $raw_item
+   *   The object to turn into a Subrequest input.
+   *
+   * @return array
+   *   The complete Subrequest.
+   */
+  protected function fillDefaults($raw_item) {
+    if (empty($raw_item['requestId'])) {
+      $uuid = new Php();
+      $raw_item['requestId'] = $uuid->generate();
+    }
+    if (!empty($raw_item['body'])) {
+      $raw_item['body'] = Json::decode($raw_item['body']);
+    }
+    $raw_item['headers'] = !empty($raw_item['headers']) ? $raw_item['headers'] : [];
+    $raw_item['waitFor'] = !empty($raw_item['waitFor']) ? $raw_item['waitFor'] : ['<ROOT>'];
+    $raw_item['_resolved'] = FALSE;
+
+    // Detect if there is an encoded token. If so, then decode the URI.
+    if (
+      !empty($raw_item['uri']) &&
+      strpos($raw_item['uri'], '%7B%7B') !== FALSE &&
+      strpos($raw_item['uri'], '%7D%7D') !== FALSE
+    ) {
+      $raw_item['uri'] = urldecode($raw_item['uri']);
+    }
+
+    return $raw_item;
+  }
+
+  /**
+   * Validates a response against the JSON API specification.
+   *
+   * @param mixed $input
+   *   The blueprint sent by the consumer.
+   *
+   * @return bool
+   *   FALSE if the input failed validation, otherwise TRUE.
+   */
+  protected function validateInput($input) {
+    if (!class_exists("\\JsonSchema\\Validator")) {
+      return TRUE;
+    }
+
+    $validator = new Validator();
+    $schema_path = dirname(dirname(__DIR__)) . '/schema.json';
+
+    $validator->check($input, (object) ['$ref' => 'file://' . $schema_path]);
+
+    if (!$validator->isValid()) {
+      // Log any potential errors.
+      $this->logger->debug('Response failed validation: @data', [
+        '@data' => Json::encode($input),
+      ]);
+      $this->logger->debug('Validation errors: @errors', [
+        '@errors' => Json::encode($validator->getErrors()),
+      ]);
+    }
+
+    return $validator->isValid();
+  }
+
+  /**
+   * Builds the execution sequence.
+   *
+   * Builds an array where each position contains the IDs of the requests to be
+   * executed. All the IDs in the same position in the sequence can be executed
+   * in parallel.
+   *
+   * @param \Drupal\subrequests\Subrequest[] $parsed
+   *   The parsed requests.
+   *
+   * @return SubrequestsTree
+   *   The sequence of IDs grouped by execution order.
+   */
+  public function buildExecutionSequence(array $parsed) {
+    $sequence = new SubrequestsTree();
+    $rooted_reqs = array_filter($parsed, function (Subrequest $item) {
+      return $item->waitFor === ['<ROOT>'];
+    });
+    $sequence->stack($rooted_reqs);
+    $subreqs_with_unresolved_deps = array_values(
+      array_filter($parsed, function (Subrequest $item) {
+        return $item->waitFor !== ['<ROOT>'];
+      })
+    );
+    $dependency_is_resolved = function (Subrequest $item) use ($sequence) {
+      return empty(array_diff($item->waitFor, $sequence->allIds()));
+    };
+    while (count($subreqs_with_unresolved_deps)) {
+      $no_deps = array_filter($subreqs_with_unresolved_deps, $dependency_is_resolved);
+      if (empty($no_deps)) {
+        throw new BadRequestHttpException('Waiting for unresolvable request. Abort.');
+      }
+      $sequence->stack($no_deps);
+      $subreqs_with_unresolved_deps = array_diff($subreqs_with_unresolved_deps, $no_deps);
+    }
+    return $sequence;
   }
 
 }

@@ -17,13 +17,6 @@ abstract class NormalizerBase extends SerializationNormalizerBase {
   protected $formats = ['api_json'];
 
   /**
-   * The JSON API resource type repository.
-   *
-   * @var \Drupal\jsonapi\ResourceType\ResourceTypeRepository
-   */
-  protected $resourceTypeRepository;
-
-  /**
    * {@inheritdoc}
    */
   public function supportsNormalization($data, $format = NULL) {

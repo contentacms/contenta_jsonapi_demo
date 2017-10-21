@@ -22,7 +22,7 @@ use Symfony\Component\HttpKernel\Exception\PreconditionFailedHttpException;
  *
  * @internal
  */
-class ResourceTypeRepository {
+class ResourceTypeRepository implements ResourceTypeRepositoryInterface {
 
   /**
    * The entity type manager.
@@ -59,10 +59,7 @@ class ResourceTypeRepository {
   }
 
   /**
-   * Gets all JSON API resource types.
-   *
-   * @return \Drupal\jsonapi\ResourceType\ResourceType[]
-   *   The set of all JSON API resource types in this Drupal instance.
+   * {@inheritdoc}
    */
   public function all() {
     if (!$this->all) {
@@ -81,15 +78,7 @@ class ResourceTypeRepository {
   }
 
   /**
-   * Gets a specific JSON API resource type based on entity type ID and bundle.
-   *
-   * @param string $entity_type_id
-   *   The entity type id.
-   * @param string $bundle_id
-   *   The id for the bundle to find.
-   *
-   * @return \Drupal\jsonapi\ResourceType\ResourceType
-   *   The requested JSON API resource type, if it exists. NULL otherwise.
+   * {@inheritdoc}
    */
   public function get($entity_type_id, $bundle) {
     if (empty($entity_type_id)) {
@@ -104,13 +93,7 @@ class ResourceTypeRepository {
   }
 
   /**
-   * Gets a specific JSON API resource type based on a supplied typename.
-   *
-   * @param string $type_name
-   *   The public typename of a JSON API resource.
-   *
-   * @return \Drupal\jsonapi\ResourceType\ResourceType|null
-   *   The resource type, or NULL if none found.
+   * {@inheritdoc}
    */
   public function getByTypeName($type_name) {
     foreach ($this->all() as $resource) {

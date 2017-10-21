@@ -78,11 +78,9 @@ class FileDownloadUrl extends FieldItemList {
       return;
     }
     $url_list = [];
-    foreach ($this->getEntity()->get('uri') as $uri_item) {
-      $url_item = clone $uri_item;
-      $uri = $uri_item->value;
-      $url_item->setValue($this->fileCreateRootRelativeUrl($uri));
-      $url_list[] = $url_item;
+    foreach ($this->getEntity()->get('uri') as $delta => $uri_item) {
+      $path = $this->fileCreateRootRelativeUrl($uri_item->value);
+      $url_list[$delta] = $this->createItem($delta, $path);
     }
     $this->list = $url_list;
   }

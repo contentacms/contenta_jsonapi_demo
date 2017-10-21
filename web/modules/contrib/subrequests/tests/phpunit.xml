@@ -2,7 +2,7 @@
 
 <phpunit colors="true">
   <testsuites>
-    <testsuite name="simple_oauth">
+    <testsuite name="subrequests">
       <directory>./src/</directory>
     </testsuite>
   </testsuites>

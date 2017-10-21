@@ -42,7 +42,7 @@ function jsonapi_help($route_name, RouteMatchInterface $route_match) {
 function jsonapi_entity_base_field_info(EntityTypeInterface $entity_type) {
   $fields = [];
   if ($entity_type->id() == 'file') {
-    $fields['url'] = BaseFieldDefinition::create('text')
+    $fields['url'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Download URL'))
       ->setDescription(t('The download URL of the file.'))
       ->setComputed(TRUE)
@@ -51,7 +51,9 @@ function jsonapi_entity_base_field_info(EntityTypeInterface $entity_type) {
       ->setDisplayOptions('view', [
         'label' => 'above',
         'weight' => -5,
-      ]);
+        'region' => 'hidden',
+      ])
+      ->setDisplayConfigurable('view', TRUE);
   }
   return $fields;
 }

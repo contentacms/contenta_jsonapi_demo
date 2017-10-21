@@ -11,16 +11,22 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Matcher\RequestMatcherInterface;
 
 /**
- * @internal
+ * Class to generate links and queries for entities.
+ *
+ * @api
  */
 class LinkManager {
 
   /**
+   * Used to determine the route from a given request.
+   *
    * @var \Symfony\Component\Routing\Matcher\RequestMatcherInterface
    */
   protected $router;
 
   /**
+   * Used to generate a link to a jsonapi representation of an entity.
+   *
    * @var \Drupal\Core\Render\MetadataBubblingUrlGenerator
    */
   protected $urlGenerator;

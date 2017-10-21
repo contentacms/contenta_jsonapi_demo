@@ -5306,117 +5306,6 @@
         ]
     },
     {
-        "name": "drupal/subrequests",
-        "version": "1.0.0-beta2",
-        "version_normalized": "1.0.0.0-beta2",
-        "source": {
-            "type": "git",
-            "url": "https://git.drupal.org/project/subrequests",
-            "reference": "8.x-1.0-beta2"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://ftp.drupal.org/files/projects/subrequests-8.x-1.0-beta2.zip",
-            "reference": "8.x-1.0-beta2",
-            "shasum": "0c190880febc4d3f1a0c6d550d38e54ef9010ab1"
-        },
-        "require": {
-            "drupal/core": "*",
-            "php-jsonpointer/php-jsonpointer": "^3.0"
-        },
-        "type": "drupal-module",
-        "extra": {
-            "branch-alias": {
-                "dev-1.x": "1.x-dev"
-            },
-            "drupal": {
-                "version": "8.x-1.0-beta2",
-                "datestamp": "1499444643",
-                "security-coverage": {
-                    "status": "not-covered",
-                    "message": "Beta releases are not covered by Drupal security advisories."
-                }
-            }
-        },
-        "installation-source": "dist",
-        "notification-url": "https://packages.drupal.org/8/downloads",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Mateu Aguiló Bosch",
-                "homepage": "https://www.drupal.org/user/550110",
-                "email": "mateu.aguilo.bosch@gmail.com"
-            }
-        ],
-        "description": "Add a front controller that you can use to make subrequests.",
-        "homepage": "https://www.drupal.org/project/subrequests",
-        "support": {
-            "source": "http://cgit.drupalcode.org/subrequests"
-        }
-    },
-    {
-        "name": "drupal/jsonapi",
-        "version": "1.1.0",
-        "version_normalized": "1.1.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://git.drupal.org/project/jsonapi",
-            "reference": "8.x-1.1"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://ftp.drupal.org/files/projects/jsonapi-8.x-1.1.zip",
-            "reference": "8.x-1.1",
-            "shasum": "f44ad78e1234b8b077d3f8ebc2265967d72d9812"
-        },
-        "require": {
-            "drupal/core": "^8.2"
-        },
-        "require-dev": {
-            "justinrainbow/json-schema": "^4.1"
-        },
-        "type": "drupal-module",
-        "extra": {
-            "branch-alias": {
-                "dev-1.x": "1.x-dev"
-            },
-            "drupal": {
-                "version": "8.x-1.1",
-                "datestamp": "1499586843",
-                "security-coverage": {
-                    "status": "covered",
-                    "message": "Covered by Drupal's security advisory policy"
-                }
-            }
-        },
-        "installation-source": "dist",
-        "notification-url": "https://packages.drupal.org/8/downloads",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "dawehner",
-                "homepage": "https://www.drupal.org/user/99340"
-            },
-            {
-                "name": "e0ipso",
-                "homepage": "https://www.drupal.org/user/550110"
-            },
-            {
-                "name": "gabesullice",
-                "homepage": "https://www.drupal.org/user/2287430"
-            }
-        ],
-        "description": "Provides a JSON API standards-compliant API for accessing and manipulating Drupal content and configuration entities.",
-        "homepage": "https://www.drupal.org/project/jsonapi",
-        "support": {
-            "source": "http://cgit.drupalcode.org/jsonapi"
-        }
-    },
-    {
         "name": "drupal/jsonapi_extras",
         "version": "dev-1.x",
         "version_normalized": "dev-1.x",
@@ -5458,317 +5347,6 @@
         "homepage": "https://www.drupal.org/project/jsonapi_extras",
         "support": {
             "source": "http://cgit.drupalcode.org/jsonapi_extras"
-        }
-    },
-    {
-        "name": "defuse/php-encryption",
-        "version": "v2.1.0",
-        "version_normalized": "2.1.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/defuse/php-encryption.git",
-            "reference": "5176f5abb38d3ea8a6e3ac6cd3bbb54d8185a689"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/defuse/php-encryption/zipball/5176f5abb38d3ea8a6e3ac6cd3bbb54d8185a689",
-            "reference": "5176f5abb38d3ea8a6e3ac6cd3bbb54d8185a689",
-            "shasum": ""
-        },
-        "require": {
-            "ext-openssl": "*",
-            "paragonie/random_compat": "~2.0",
-            "php": ">=5.4.0"
-        },
-        "require-dev": {
-            "nikic/php-parser": "^2.0|^3.0",
-            "phpunit/phpunit": "^4|^5"
-        },
-        "time": "2017-05-18T21:28:48+00:00",
-        "bin": [
-            "bin/generate-defuse-key"
-        ],
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "psr-4": {
-                "Defuse\\Crypto\\": "src"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "Taylor Hornby",
-                "email": "taylor@defuse.ca",
-                "homepage": "https://defuse.ca/"
-            },
-            {
-                "name": "Scott Arciszewski",
-                "email": "info@paragonie.com",
-                "homepage": "https://paragonie.com"
-            }
-        ],
-        "description": "Secure PHP Encryption Library",
-        "keywords": [
-            "aes",
-            "authenticated encryption",
-            "cipher",
-            "crypto",
-            "cryptography",
-            "encrypt",
-            "encryption",
-            "openssl",
-            "security",
-            "symmetric key cryptography"
-        ]
-    },
-    {
-        "name": "lcobucci/jwt",
-        "version": "3.2.1",
-        "version_normalized": "3.2.1.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/lcobucci/jwt.git",
-            "reference": "ddce703826f9c5229781933b1a39069e38e6a0f3"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/lcobucci/jwt/zipball/ddce703826f9c5229781933b1a39069e38e6a0f3",
-            "reference": "ddce703826f9c5229781933b1a39069e38e6a0f3",
-            "shasum": ""
-        },
-        "require": {
-            "ext-openssl": "*",
-            "php": ">=5.5"
-        },
-        "require-dev": {
-            "mdanter/ecc": "~0.3.1",
-            "mikey179/vfsstream": "~1.5",
-            "phpmd/phpmd": "~2.2",
-            "phpunit/php-invoker": "~1.1",
-            "phpunit/phpunit": "~4.5",
-            "squizlabs/php_codesniffer": "~2.3"
-        },
-        "suggest": {
-            "mdanter/ecc": "Required to use Elliptic Curves based algorithms."
-        },
-        "time": "2016-10-31T20:09:32+00:00",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "3.1-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "psr-4": {
-                "Lcobucci\\JWT\\": "src"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "BSD-3-Clause"
-        ],
-        "authors": [
-            {
-                "name": "Luís Otávio Cobucci Oblonczyk",
-                "email": "lcobucci@gmail.com",
-                "role": "Developer"
-            }
-        ],
-        "description": "A simple library to work with JSON Web Token and JSON Web Signature",
-        "keywords": [
-            "JWS",
-            "jwt"
-        ]
-    },
-    {
-        "name": "league/event",
-        "version": "2.1.2",
-        "version_normalized": "2.1.2.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/thephpleague/event.git",
-            "reference": "e4bfc88dbcb60c8d8a2939a71f9813e141bbe4cd"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/thephpleague/event/zipball/e4bfc88dbcb60c8d8a2939a71f9813e141bbe4cd",
-            "reference": "e4bfc88dbcb60c8d8a2939a71f9813e141bbe4cd",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.4.0"
-        },
-        "require-dev": {
-            "henrikbjorn/phpspec-code-coverage": "~1.0.1",
-            "phpspec/phpspec": "~2.0.0"
-        },
-        "time": "2015-05-21T12:24:47+00:00",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "2.2-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "psr-4": {
-                "League\\Event\\": "src/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "Frank de Jonge",
-                "email": "info@frenky.net"
-            }
-        ],
-        "description": "Event package",
-        "keywords": [
-            "emitter",
-            "event",
-            "listener"
-        ]
-    },
-    {
-        "name": "league/oauth2-server",
-        "version": "5.1.5",
-        "version_normalized": "5.1.5.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/thephpleague/oauth2-server.git",
-            "reference": "8e5df6d6286d0010861a708b70f00345d074bce9"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/thephpleague/oauth2-server/zipball/8e5df6d6286d0010861a708b70f00345d074bce9",
-            "reference": "8e5df6d6286d0010861a708b70f00345d074bce9",
-            "shasum": ""
-        },
-        "require": {
-            "defuse/php-encryption": "^2.1",
-            "ext-openssl": "*",
-            "lcobucci/jwt": "^3.1",
-            "league/event": "^2.1",
-            "paragonie/random_compat": "^2.0",
-            "php": ">=5.5.9",
-            "psr/http-message": "^1.0"
-        },
-        "replace": {
-            "league/oauth2server": "*",
-            "lncd/oauth2": "*"
-        },
-        "require-dev": {
-            "indigophp/hash-compat": "^1.1",
-            "phpunit/phpunit": "^4.8 || ^5.0",
-            "zendframework/zend-diactoros": "^1.0"
-        },
-        "suggest": {
-            "indigophp/hash-compat": "Polyfill for hash_equals function for PHP 5.5"
-        },
-        "time": "2017-07-11T06:31:36+00:00",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-V5-WIP": "5.0-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "psr-4": {
-                "League\\OAuth2\\Server\\": "src/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "Alex Bilbie",
-                "email": "hello@alexbilbie.com",
-                "homepage": "http://www.alexbilbie.com",
-                "role": "Developer"
-            }
-        ],
-        "description": "A lightweight and powerful OAuth 2.0 authorization and resource server library with support for all the core specification grants. This library will allow you to secure your API with OAuth and allow your applications users to approve apps that want to access their data from your API.",
-        "homepage": "https://oauth2.thephpleague.com/",
-        "keywords": [
-            "Authentication",
-            "api",
-            "auth",
-            "authorisation",
-            "authorization",
-            "oauth",
-            "oauth 2",
-            "oauth 2.0",
-            "oauth2",
-            "protect",
-            "resource",
-            "secure",
-            "server"
-        ]
-    },
-    {
-        "name": "drupal/simple_oauth",
-        "version": "2.0.0-rc3",
-        "version_normalized": "2.0.0.0-RC3",
-        "source": {
-            "type": "git",
-            "url": "https://git.drupal.org/project/simple_oauth",
-            "reference": "8.x-2.0-rc3"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://ftp.drupal.org/files/projects/simple_oauth-8.x-2.0-rc3.zip",
-            "reference": "8.x-2.0-rc3",
-            "shasum": "a672216d3f3ceb13f7b2840cf466169d546f67e2"
-        },
-        "require": {
-            "drupal/core": "*",
-            "league/oauth2-server": "~5.1"
-        },
-        "type": "drupal-module",
-        "extra": {
-            "branch-alias": {
-                "dev-2.x": "2.x-dev"
-            },
-            "drupal": {
-                "version": "8.x-2.0-rc3",
-                "datestamp": "1499089742",
-                "security-coverage": {
-                    "status": "not-covered",
-                    "message": "RC releases are not covered by Drupal security advisories."
-                }
-            }
-        },
-        "installation-source": "dist",
-        "notification-url": "https://packages.drupal.org/8/downloads",
-        "license": [
-            "GPL-2.0+"
-        ],
-        "authors": [
-            {
-                "name": "Mateu Aguiló Bosch",
-                "homepage": "https://www.drupal.org/user/550110",
-                "email": "mateu.aguilo.bosch@gmail.com"
-            },
-            {
-                "name": "pcambra",
-                "homepage": "https://www.drupal.org/user/122101"
-            }
-        ],
-        "description": "The Simple OAuth module for Drupal",
-        "homepage": "https://www.drupal.org/project/simple_oauth",
-        "support": {
-            "source": "http://cgit.drupalcode.org/simple_oauth"
         }
     },
     {
@@ -7918,6 +7496,577 @@
         ]
     },
     {
+        "name": "drupal/jsonapi",
+        "version": "1.3.0",
+        "version_normalized": "1.3.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://git.drupal.org/project/jsonapi",
+            "reference": "8.x-1.3"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://ftp.drupal.org/files/projects/jsonapi-8.x-1.3.zip",
+            "reference": "8.x-1.3",
+            "shasum": "cd3df010a305097e8fee08a2d1777bd6ad58c64a"
+        },
+        "require": {
+            "drupal/core": "^8.2"
+        },
+        "require-dev": {
+            "justinrainbow/json-schema": "^4.1"
+        },
+        "type": "drupal-module",
+        "extra": {
+            "branch-alias": {
+                "dev-1.x": "1.x-dev"
+            },
+            "drupal": {
+                "version": "8.x-1.3",
+                "datestamp": "1505680144",
+                "security-coverage": {
+                    "status": "covered",
+                    "message": "Covered by Drupal's security advisory policy"
+                }
+            }
+        },
+        "installation-source": "dist",
+        "notification-url": "https://packages.drupal.org/8/downloads",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Wim Leers",
+                "homepage": "https://www.drupal.org/user/99777"
+            },
+            {
+                "name": "dawehner",
+                "homepage": "https://www.drupal.org/user/99340"
+            },
+            {
+                "name": "e0ipso",
+                "homepage": "https://www.drupal.org/user/550110"
+            },
+            {
+                "name": "gabesullice",
+                "homepage": "https://www.drupal.org/user/2287430"
+            }
+        ],
+        "description": "Provides a JSON API standards-compliant API for accessing and manipulating Drupal content and configuration entities.",
+        "homepage": "https://www.drupal.org/project/jsonapi",
+        "support": {
+            "source": "http://cgit.drupalcode.org/jsonapi"
+        }
+    },
+    {
+        "name": "drupal/consumers",
+        "version": "1.0.0-beta1",
+        "version_normalized": "1.0.0.0-beta1",
+        "source": {
+            "type": "git",
+            "url": "https://git.drupal.org/project/consumers",
+            "reference": "8.x-1.0-beta1"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://ftp.drupal.org/files/projects/consumers-8.x-1.0-beta1.zip",
+            "reference": "8.x-1.0-beta1",
+            "shasum": "87e5472fde6c7cc60ed7dda2af350997ae4767d8"
+        },
+        "require": {
+            "drupal/core": "*"
+        },
+        "type": "drupal-module",
+        "extra": {
+            "branch-alias": {
+                "dev-1.x": "1.x-dev"
+            },
+            "drupal": {
+                "version": "8.x-1.0-beta1",
+                "datestamp": "1505249045",
+                "security-coverage": {
+                    "status": "not-covered",
+                    "message": "Project has not opted into security advisory coverage!"
+                }
+            }
+        },
+        "installation-source": "dist",
+        "notification-url": "https://packages.drupal.org/8/downloads",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "e0ipso",
+                "homepage": "https://www.drupal.org/user/550110"
+            }
+        ],
+        "description": "Declare all the consumers of your API",
+        "homepage": "https://www.drupal.org/project/consumers",
+        "support": {
+            "source": "http://cgit.drupalcode.org/consumers"
+        }
+    },
+    {
+        "name": "drupal/consumer_image_styles",
+        "version": "2.0.0-rc3",
+        "version_normalized": "2.0.0.0-RC3",
+        "source": {
+            "type": "git",
+            "url": "https://git.drupal.org/project/consumer_image_styles",
+            "reference": "8.x-2.0-rc3"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://ftp.drupal.org/files/projects/consumer_image_styles-8.x-2.0-rc3.zip",
+            "reference": "8.x-2.0-rc3",
+            "shasum": "b8b1f24f0ac91d288b78c977b90b46d15354bc62"
+        },
+        "require": {
+            "drupal/consumers": "*",
+            "drupal/core": "*",
+            "drupal/jsonapi": "^1.3"
+        },
+        "type": "drupal-module",
+        "extra": {
+            "branch-alias": {
+                "dev-2.x": "2.x-dev"
+            },
+            "drupal": {
+                "version": "8.x-2.0-rc3",
+                "datestamp": "1506314345",
+                "security-coverage": {
+                    "status": "not-covered",
+                    "message": "RC releases are not covered by Drupal security advisories."
+                }
+            }
+        },
+        "installation-source": "dist",
+        "notification-url": "https://packages.drupal.org/8/downloads",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "e0ipso",
+                "homepage": "https://www.drupal.org/user/550110"
+            }
+        ],
+        "description": "Attach image styles to a given consumer",
+        "homepage": "https://www.drupal.org/project/consumer_image_styles",
+        "support": {
+            "source": "http://cgit.drupalcode.org/consumer_image_styles"
+        }
+    },
+    {
+        "name": "defuse/php-encryption",
+        "version": "v2.1.0",
+        "version_normalized": "2.1.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/defuse/php-encryption.git",
+            "reference": "5176f5abb38d3ea8a6e3ac6cd3bbb54d8185a689"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/defuse/php-encryption/zipball/5176f5abb38d3ea8a6e3ac6cd3bbb54d8185a689",
+            "reference": "5176f5abb38d3ea8a6e3ac6cd3bbb54d8185a689",
+            "shasum": ""
+        },
+        "require": {
+            "ext-openssl": "*",
+            "paragonie/random_compat": "~2.0",
+            "php": ">=5.4.0"
+        },
+        "require-dev": {
+            "nikic/php-parser": "^2.0|^3.0",
+            "phpunit/phpunit": "^4|^5"
+        },
+        "time": "2017-05-18T21:28:48+00:00",
+        "bin": [
+            "bin/generate-defuse-key"
+        ],
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Defuse\\Crypto\\": "src"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Taylor Hornby",
+                "email": "taylor@defuse.ca",
+                "homepage": "https://defuse.ca/"
+            },
+            {
+                "name": "Scott Arciszewski",
+                "email": "info@paragonie.com",
+                "homepage": "https://paragonie.com"
+            }
+        ],
+        "description": "Secure PHP Encryption Library",
+        "keywords": [
+            "aes",
+            "authenticated encryption",
+            "cipher",
+            "crypto",
+            "cryptography",
+            "encrypt",
+            "encryption",
+            "openssl",
+            "security",
+            "symmetric key cryptography"
+        ]
+    },
+    {
+        "name": "lcobucci/jwt",
+        "version": "3.2.2",
+        "version_normalized": "3.2.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/lcobucci/jwt.git",
+            "reference": "0b5930be73582369e10c4d4bb7a12bac927a203c"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/lcobucci/jwt/zipball/0b5930be73582369e10c4d4bb7a12bac927a203c",
+            "reference": "0b5930be73582369e10c4d4bb7a12bac927a203c",
+            "shasum": ""
+        },
+        "require": {
+            "ext-openssl": "*",
+            "php": ">=5.5"
+        },
+        "require-dev": {
+            "mdanter/ecc": "~0.3.1",
+            "mikey179/vfsstream": "~1.5",
+            "phpmd/phpmd": "~2.2",
+            "phpunit/php-invoker": "~1.1",
+            "phpunit/phpunit": "~4.5",
+            "squizlabs/php_codesniffer": "~2.3"
+        },
+        "suggest": {
+            "mdanter/ecc": "Required to use Elliptic Curves based algorithms."
+        },
+        "time": "2017-09-01T08:23:26+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "3.1-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Lcobucci\\JWT\\": "src"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "BSD-3-Clause"
+        ],
+        "authors": [
+            {
+                "name": "Luís Otávio Cobucci Oblonczyk",
+                "email": "lcobucci@gmail.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "A simple library to work with JSON Web Token and JSON Web Signature",
+        "keywords": [
+            "JWS",
+            "jwt"
+        ]
+    },
+    {
+        "name": "league/event",
+        "version": "2.1.2",
+        "version_normalized": "2.1.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/thephpleague/event.git",
+            "reference": "e4bfc88dbcb60c8d8a2939a71f9813e141bbe4cd"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/thephpleague/event/zipball/e4bfc88dbcb60c8d8a2939a71f9813e141bbe4cd",
+            "reference": "e4bfc88dbcb60c8d8a2939a71f9813e141bbe4cd",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.4.0"
+        },
+        "require-dev": {
+            "henrikbjorn/phpspec-code-coverage": "~1.0.1",
+            "phpspec/phpspec": "~2.0.0"
+        },
+        "time": "2015-05-21T12:24:47+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "2.2-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "League\\Event\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Frank de Jonge",
+                "email": "info@frenky.net"
+            }
+        ],
+        "description": "Event package",
+        "keywords": [
+            "emitter",
+            "event",
+            "listener"
+        ]
+    },
+    {
+        "name": "league/oauth2-server",
+        "version": "6.0.2",
+        "version_normalized": "6.0.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/thephpleague/oauth2-server.git",
+            "reference": "925776958fc3f5278e74363663c20147af32b668"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/thephpleague/oauth2-server/zipball/925776958fc3f5278e74363663c20147af32b668",
+            "reference": "925776958fc3f5278e74363663c20147af32b668",
+            "shasum": ""
+        },
+        "require": {
+            "defuse/php-encryption": "^2.1",
+            "ext-openssl": "*",
+            "lcobucci/jwt": "^3.1",
+            "league/event": "^2.1",
+            "paragonie/random_compat": "^2.0",
+            "php": ">=5.6.0",
+            "psr/http-message": "^1.0"
+        },
+        "replace": {
+            "league/oauth2server": "*",
+            "lncd/oauth2": "*"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "^4.8 || ^5.0",
+            "zendframework/zend-diactoros": "^1.0"
+        },
+        "time": "2017-08-03T15:09:23+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "League\\OAuth2\\Server\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Alex Bilbie",
+                "email": "hello@alexbilbie.com",
+                "homepage": "http://www.alexbilbie.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "A lightweight and powerful OAuth 2.0 authorization and resource server library with support for all the core specification grants. This library will allow you to secure your API with OAuth and allow your applications users to approve apps that want to access their data from your API.",
+        "homepage": "https://oauth2.thephpleague.com/",
+        "keywords": [
+            "Authentication",
+            "api",
+            "auth",
+            "authorisation",
+            "authorization",
+            "oauth",
+            "oauth 2",
+            "oauth 2.0",
+            "oauth2",
+            "protect",
+            "resource",
+            "secure",
+            "server"
+        ]
+    },
+    {
+        "name": "drupal/simple_oauth",
+        "version": "3.0.0",
+        "version_normalized": "3.0.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://git.drupal.org/project/simple_oauth",
+            "reference": "8.x-3.0"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://ftp.drupal.org/files/projects/simple_oauth-8.x-3.0.zip",
+            "reference": "8.x-3.0",
+            "shasum": "2814802f824433bf14410edfea3283412c30713b"
+        },
+        "require": {
+            "drupal/consumers": "*",
+            "drupal/core": "^8.3",
+            "league/oauth2-server": "~6.0"
+        },
+        "type": "drupal-module",
+        "extra": {
+            "branch-alias": {
+                "dev-3.x": "3.x-dev"
+            },
+            "drupal": {
+                "version": "8.x-3.0",
+                "datestamp": "1506893943",
+                "security-coverage": {
+                    "status": "covered",
+                    "message": "Covered by Drupal's security advisory policy"
+                }
+            }
+        },
+        "installation-source": "dist",
+        "notification-url": "https://packages.drupal.org/8/downloads",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Mateu Aguiló Bosch",
+                "homepage": "https://www.drupal.org/user/550110",
+                "email": "mateu.aguilo.bosch@gmail.com"
+            },
+            {
+                "name": "pcambra",
+                "homepage": "https://www.drupal.org/user/122101"
+            }
+        ],
+        "description": "The Simple OAuth module for Drupal",
+        "homepage": "https://www.drupal.org/project/simple_oauth",
+        "support": {
+            "source": "http://cgit.drupalcode.org/simple_oauth"
+        }
+    },
+    {
+        "name": "skyscanner/jsonpath",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/Skyscanner/JsonPath-PHP.git",
+            "reference": "d08d1efeadad3345257249e35e8cfd65f21256ae"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/Skyscanner/JsonPath-PHP/zipball/d08d1efeadad3345257249e35e8cfd65f21256ae",
+            "reference": "d08d1efeadad3345257249e35e8cfd65f21256ae",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.4"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~4.0",
+            "sami/sami": ">=3.3.0",
+            "satooshi/php-coveralls": ">=1.0.1"
+        },
+        "time": "2017-09-13T09:14:46+00:00",
+        "type": "library",
+        "installation-source": "source",
+        "autoload": {
+            "psr-0": {
+                "JsonPath\\": "src/Skyscanner/",
+                "Utilities\\": "src/Skyscanner/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "Apache 2.0"
+        ],
+        "authors": [
+            {
+                "name": "Alessio Linares",
+                "email": "alessio.linares@skyscanner.net",
+                "role": "Software Engineer"
+            }
+        ],
+        "description": "JSONPath implementation for querying and updating JSON objects",
+        "keywords": [
+            "json",
+            "jsonpath",
+            "path"
+        ]
+    },
+    {
+        "name": "drupal/subrequests",
+        "version": "2.0.0-beta3",
+        "version_normalized": "2.0.0.0-beta3",
+        "source": {
+            "type": "git",
+            "url": "https://git.drupal.org/project/subrequests",
+            "reference": "8.x-2.0-beta3"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://ftp.drupal.org/files/projects/subrequests-8.x-2.0-beta3.zip",
+            "reference": "8.x-2.0-beta3",
+            "shasum": "00fbc5de773dc9b9d8550ea0d3a66101a94ad8b7"
+        },
+        "require": {
+            "drupal/core": "*",
+            "skyscanner/jsonpath": "dev-master"
+        },
+        "require-dev": {
+            "justinrainbow/json-schema": "^4.1"
+        },
+        "type": "drupal-module",
+        "extra": {
+            "branch-alias": {
+                "dev-2.x": "2.x-dev"
+            },
+            "drupal": {
+                "version": "8.x-2.0-beta3",
+                "datestamp": "1508390644",
+                "security-coverage": {
+                    "status": "not-covered",
+                    "message": "Beta releases are not covered by Drupal security advisories."
+                }
+            }
+        },
+        "installation-source": "dist",
+        "notification-url": "https://packages.drupal.org/8/downloads",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Mateu Aguiló Bosch",
+                "homepage": "https://www.drupal.org/user/550110",
+                "email": "mateu.aguilo.bosch@gmail.com"
+            }
+        ],
+        "description": "Add a front controller that you can use to make subrequests.",
+        "homepage": "https://www.drupal.org/project/subrequests",
+        "support": {
+            "source": "http://cgit.drupalcode.org/subrequests"
+        }
+    },
+    {
         "name": "contentacms/contenta_jsonapi",
         "version": "dev-8.x-1.x",
         "version_normalized": "dev-8.x-1.x",
@@ -7960,7 +8109,7 @@
             "drupal/features": "^3.5",
             "guzzlehttp/guzzle": "~6.0"
         },
-        "time": "2017-08-23T15:27:33+00:00",
+        "time": "2017-10-21T06:26:43+00:00",
         "type": "drupal-profile",
         "extra": {
             "installer-paths": {
@@ -7996,7 +8145,7 @@
                 }
             }
         },
-        "installation-source": "dist",
+        "installation-source": "source",
         "notification-url": "https://packagist.org/downloads/",
         "license": [
             "GPL-2.0+"

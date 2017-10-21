@@ -3,7 +3,10 @@
   "description": "Add a front controller that you can use to make subrequests.",
   "type": "drupal-module",
   "require": {
-    "php-jsonpointer/php-jsonpointer": "^3.0"
+    "skyscanner/jsonpath": "dev-master"
+  },
+  "require-dev": {
+    "justinrainbow/json-schema": "^4.1"
   },
   "license": "GPL-2.0+",
   "authors": [

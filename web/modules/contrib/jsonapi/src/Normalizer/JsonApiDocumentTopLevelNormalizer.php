@@ -7,6 +7,7 @@ use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\EntityReferenceFieldItemListInterface;
 use Drupal\jsonapi\Context\CurrentContext;
+use Drupal\jsonapi\Context\FieldResolver;
 use Drupal\jsonapi\Normalizer\Value\JsonApiDocumentTopLevelNormalizerValue;
 use Drupal\jsonapi\Resource\EntityCollection;
 use Drupal\jsonapi\LinkManager\LinkManager;
@@ -16,7 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Drupal\jsonapi\ResourceType\ResourceTypeRepository;
+use Drupal\jsonapi\ResourceType\ResourceTypeRepositoryInterface;
 
 /**
  * @see \Drupal\jsonapi\Resource\JsonApiDocumentTopLevel
@@ -50,6 +51,13 @@ class JsonApiDocumentTopLevelNormalizer extends NormalizerBase implements Denorm
   protected $entityTypeManager;
 
   /**
+   * The field resolver.
+   *
+   * @var \Drupal\jsonapi\Context\FieldResolver
+   */
+  protected $fieldResolver;
+
+  /**
    * Constructs a JsonApiDocumentTopLevelNormalizer object.
    *
    * @param \Drupal\jsonapi\LinkManager\LinkManager $link_manager
@@ -59,11 +67,12 @@ class JsonApiDocumentTopLevelNormalizer extends NormalizerBase implements Denorm
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
    */
-  public function __construct(LinkManager $link_manager, CurrentContext $current_context, EntityTypeManagerInterface $entity_type_manager, ResourceTypeRepository $resource_type_repository) {
+  public function __construct(LinkManager $link_manager, CurrentContext $current_context, EntityTypeManagerInterface $entity_type_manager, ResourceTypeRepositoryInterface $resource_type_repository, FieldResolver $field_resolver) {
     $this->linkManager = $link_manager;
     $this->currentContext = $current_context;
     $this->entityTypeManager = $entity_type_manager;
     $this->resourceTypeRepository = $resource_type_repository;
+    $this->fieldResolver = $field_resolver;
   }
 
   /**
@@ -236,13 +245,9 @@ class JsonApiDocumentTopLevelNormalizer extends NormalizerBase implements Denorm
     // Translate ALL the includes from the public field names to the internal.
     $includes = array_filter(explode(',', $request->query->get('include')));
     $public_includes = array_map(function ($include_str) use ($resource_type) {
-      $field_names = explode('.', $include_str);
-      return implode('.', array_map(
-        function ($field_name) use ($resource_type) {
-          return $resource_type->getInternalName($field_name);
-        },
-        $field_names
-      ));
+      $resolved = $this->fieldResolver->resolveInternal($include_str);
+      // We don't need the entity information for the includes. Clean it.
+      return preg_replace('/\.entity\./', '.', $resolved);
     }, $includes);
     // Build the expanded context.
     $context = [

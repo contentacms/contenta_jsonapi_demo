@@ -2,7 +2,7 @@
 
 <phpunit colors="true">
   <testsuites>
-    <testsuite name="simple_oauth_extras">
+    <testsuite name="consumer_image_styles">
       <directory>./src/</directory>
     </testsuite>
   </testsuites>
