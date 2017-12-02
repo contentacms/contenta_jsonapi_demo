@@ -375,15 +375,15 @@ class FilesystemTest extends FilesystemTestCase
     public function testFilesExistsFails()
     {
         if ('\\' !== DIRECTORY_SEPARATOR) {
-            $this->markTestSkipped('Test covers edge case on Windows only.');
+            $this->markTestSkipped('Long file names are an issue on Windows');
         }
-
         $basePath = $this->workspace.'\\directory\\';
+        $maxPathLength = PHP_MAXPATHLEN - 2;
 
         $oldPath = getcwd();
         mkdir($basePath);
         chdir($basePath);
-        $file = str_repeat('T', 259 - strlen($basePath));
+        $file = str_repeat('T', $maxPathLength - strlen($basePath) + 1);
         $path = $basePath.$file;
         exec('TYPE NUL >>'.$file); // equivalent of touch, we can not use the php touch() here because it suffers from the same limitation
         $this->longPathNamesWindows[] = $path; // save this so we can clean up later
@@ -448,10 +448,6 @@ class FilesystemTest extends FilesystemTestCase
     public function testChmodWithWrongModLeavesPreviousPermissionsUntouched()
     {
         $this->markAsSkippedIfChmodIsMissing();
-
-        if (defined('HHVM_VERSION')) {
-            $this->markTestSkipped('chmod() changes permissions even when passing invalid modes on HHVM');
-        }
 
         $dir = $this->workspace.DIRECTORY_SEPARATOR.'file';
         touch($dir);
@@ -1093,9 +1089,6 @@ class FilesystemTest extends FilesystemTestCase
         $this->assertEquals($expectedPath, $path);
     }
 
-    /**
-     * @return array
-     */
     public function providePathsForMakePathRelative()
     {
         $paths = array(
@@ -1103,7 +1096,6 @@ class FilesystemTest extends FilesystemTestCase
             array('/var/lib/symfony/src/Symfony/', '/var/lib/symfony/src/Symfony/Component/', '../'),
             array('/var/lib/symfony/src/Symfony', '/var/lib/symfony/src/Symfony/Component', '../'),
             array('/var/lib/symfony/src/Symfony', '/var/lib/symfony/src/Symfony/Component/', '../'),
-            array('var/lib/symfony/', 'var/lib/symfony/src/Symfony/Component', '../../../'),
             array('/usr/lib/symfony/', '/var/lib/symfony/src/Symfony/Component', '../../../../../../usr/lib/symfony/'),
             array('/var/lib/symfony/src/Symfony/', '/var/lib/symfony/', 'src/Symfony/'),
             array('/aa/bb', '/aa/bb', './'),
@@ -1143,6 +1135,24 @@ class FilesystemTest extends FilesystemTestCase
         }
 
         return $paths;
+    }
+
+    /**
+     * @expectedException \Symfony\Component\Filesystem\Exception\InvalidArgumentException
+     * @expectedExceptionMessage The start path "var/lib/symfony/src/Symfony/Component" is not absolute.
+     */
+    public function testMakePathRelativeWithRelativeStartPath()
+    {
+        $this->assertSame('../../../', $this->filesystem->makePathRelative('/var/lib/symfony/', 'var/lib/symfony/src/Symfony/Component'));
+    }
+
+    /**
+     * @expectedException \Symfony\Component\Filesystem\Exception\InvalidArgumentException
+     * @expectedExceptionMessage The end path "var/lib/symfony/" is not absolute.
+     */
+    public function testMakePathRelativeWithRelativeEndPath()
+    {
+        $this->assertSame('../../../', $this->filesystem->makePathRelative('var/lib/symfony/', '/var/lib/symfony/src/Symfony/Component'));
     }
 
     public function testMirrorCopiesFilesAndDirectoriesRecursively()
@@ -1264,6 +1274,53 @@ class FilesystemTest extends FilesystemTestCase
         $this->assertEquals('\\' === DIRECTORY_SEPARATOR ? realpath($sourcePath.'\nested') : 'nested', readlink($targetPath.DIRECTORY_SEPARATOR.'link1'));
     }
 
+    public function testMirrorContentsWithSameNameAsSourceOrTargetWithoutDeleteOption()
+    {
+        $sourcePath = $this->workspace.DIRECTORY_SEPARATOR.'source'.DIRECTORY_SEPARATOR;
+
+        mkdir($sourcePath);
+        touch($sourcePath.'source');
+        touch($sourcePath.'target');
+
+        $targetPath = $this->workspace.DIRECTORY_SEPARATOR.'target'.DIRECTORY_SEPARATOR;
+
+        $oldPath = getcwd();
+        chdir($this->workspace);
+
+        $this->filesystem->mirror('source', $targetPath);
+
+        chdir($oldPath);
+
+        $this->assertTrue(is_dir($targetPath));
+        $this->assertFileExists($targetPath.'source');
+        $this->assertFileExists($targetPath.'target');
+    }
+
+    public function testMirrorContentsWithSameNameAsSourceOrTargetWithDeleteOption()
+    {
+        $sourcePath = $this->workspace.DIRECTORY_SEPARATOR.'source'.DIRECTORY_SEPARATOR;
+
+        mkdir($sourcePath);
+        touch($sourcePath.'source');
+
+        $targetPath = $this->workspace.DIRECTORY_SEPARATOR.'target'.DIRECTORY_SEPARATOR;
+
+        mkdir($targetPath);
+        touch($targetPath.'source');
+        touch($targetPath.'target');
+
+        $oldPath = getcwd();
+        chdir($this->workspace);
+
+        $this->filesystem->mirror('source', 'target', null, array('delete' => true));
+
+        chdir($oldPath);
+
+        $this->assertTrue(is_dir($targetPath));
+        $this->assertFileExists($targetPath.'source');
+        $this->assertFileNotExists($targetPath.'target');
+    }
+
     /**
      * @dataProvider providePathsForIsAbsolutePath
      */
@@ -1274,9 +1331,6 @@ class FilesystemTest extends FilesystemTestCase
         $this->assertEquals($expectedResult, $result);
     }
 
-    /**
-     * @return array
-     */
     public function providePathsForIsAbsolutePath()
     {
         return array(
@@ -1426,10 +1480,6 @@ class FilesystemTest extends FilesystemTestCase
 
     public function testDumpFileWithFileScheme()
     {
-        if (defined('HHVM_VERSION')) {
-            $this->markTestSkipped('HHVM does not handle the file:// scheme correctly');
-        }
-
         $scheme = 'file://';
         $filename = $scheme.$this->workspace.DIRECTORY_SEPARATOR.'foo'.DIRECTORY_SEPARATOR.'baz.txt';
 
@@ -1476,10 +1526,6 @@ class FilesystemTest extends FilesystemTestCase
 
     public function testAppendToFileWithScheme()
     {
-        if (defined('HHVM_VERSION')) {
-            $this->markTestSkipped('HHVM does not handle the file:// scheme correctly');
-        }
-
         $scheme = 'file://';
         $filename = $scheme.$this->workspace.DIRECTORY_SEPARATOR.'foo'.DIRECTORY_SEPARATOR.'baz.txt';
         $this->filesystem->dumpFile($filename, 'foo');
@@ -1556,12 +1602,8 @@ class FilesystemTest extends FilesystemTestCase
 
     /**
      * Normalize the given path (transform each blackslash into a real directory separator).
-     *
-     * @param string $path
-     *
-     * @return string
      */
-    private function normalize($path)
+    private function normalize(string $path): string
     {
         return str_replace('/', DIRECTORY_SEPARATOR, $path);
     }

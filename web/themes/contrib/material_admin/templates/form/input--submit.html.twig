@@ -11,14 +11,15 @@
  */
 #}
 
-{%
-  set classes = [
-    'waves-effect waves-light waves-input-wrapper button btn',
-    ]
-%}
-
 {% if attributes.hasClass('visually-hidden') or  attributes.hasClass('js-hide') %}
   <input{{ attributes.addClass('js-hide') }} />{{ children }}
- {% else %}
-  <input{{ attributes.addClass(classes) }} />{{ children }}
+{% else %}
+  {# Views UI does not use core's dropbutton for adding displays #}
+  {% if not (attributes.class matches '/^add-display.*$/') %}
+    <i class="waves-effect waves-light waves-input-wrapper button btn">
+      <input{{ attributes.addClass('waves-button-input') }} />{{ children }}
+    </i>
+  {% else %}
+    <input{{ attributes }} />{{ children }}
+  {% endif %}
 {% endif %}

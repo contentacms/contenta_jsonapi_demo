@@ -24,6 +24,7 @@ use Drupal\Core\Entity\EntityStorageInterface;
  *   },
  *   config_prefix = "jsonapi_resource_config",
  *   admin_permission = "administer site configuration",
+ *   static_cache = TRUE,
  *   entity_keys = {
  *     "id" = "id",
  *     "label" = "label",
@@ -77,4 +78,14 @@ class JsonapiResourceConfig extends ConfigEntityBase {
     \Drupal::service('router.builder')->setRebuildNeeded();
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function calculateDependencies() {
+    parent::calculateDependencies();
+    $id = explode('--',$this->id);
+    $typeManager = $this->entityTypeManager();
+    $dependency = $typeManager->getDefinition($id[0])->getBundleConfigDependency($id[1]);
+    $this->addDependency($dependency['type'], $dependency['name']);
+  }
 }

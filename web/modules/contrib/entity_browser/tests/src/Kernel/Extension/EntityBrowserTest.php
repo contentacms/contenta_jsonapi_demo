@@ -32,6 +32,7 @@ class EntityBrowserTest extends KernelTestBase {
     'user',
     'views',
     'file',
+    'node',
     'entity_browser',
     'entity_browser_test',
   ];
@@ -261,7 +262,7 @@ class EntityBrowserTest extends KernelTestBase {
       $registered_route = $this->routeProvider->getRouteByName('entity_browser.' . $entity->id());
     }
     catch (\Exception $e) {
-      $this->fail(t('Expected route not found: @message', array('@message' => $e->getMessage())));
+      $this->fail(t('Expected route not found: @message', ['@message' => $e->getMessage()]));
       return;
     }
 

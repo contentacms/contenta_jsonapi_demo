@@ -4,6 +4,7 @@ namespace Drupal\jsonapi\Field;
 
 use Drupal\Core\Field\FieldItemList;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\StreamWrapper\StreamWrapperInterface;
 
 /**
  * @internal
@@ -11,7 +12,7 @@ use Drupal\Core\Session\AccountInterface;
 class FileDownloadUrl extends FieldItemList {
 
   /**
-   * Creates a relative URL out of a URI.
+   * Creates URL out of a URI.
    *
    * This is a wrapper to the procedural code for testing purposes. For obvious
    * reasons this method will not be unit tested, but that is fine since it's
@@ -23,8 +24,15 @@ class FileDownloadUrl extends FieldItemList {
    * @return string
    *   The transformed relative URL.
    */
-  protected function fileCreateRootRelativeUrl($uri) {
-    return file_url_transform_relative(file_create_url($uri));
+  protected function fileCreateUrl($uri) {
+    $wrapper = \Drupal::service('stream_wrapper_manager')->getViaUri($uri);
+    if ($wrapper && ($wrapper->getType() & StreamWrapperInterface::VISIBLE)) {
+      return file_create_url($uri);
+    }
+
+    // For testing purposes, return the $uri when the scheme is not a wrapper or
+    // not visible.
+    return $uri;
   }
 
   /**
@@ -79,7 +87,7 @@ class FileDownloadUrl extends FieldItemList {
     }
     $url_list = [];
     foreach ($this->getEntity()->get('uri') as $delta => $uri_item) {
-      $path = $this->fileCreateRootRelativeUrl($uri_item->value);
+      $path = $this->fileCreateUrl($uri_item->value);
       $url_list[$delta] = $this->createItem($delta, $path);
     }
     $this->list = $url_list;

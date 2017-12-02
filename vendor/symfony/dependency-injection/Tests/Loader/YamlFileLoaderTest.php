@@ -33,40 +33,33 @@ class YamlFileLoaderTest extends TestCase
         require_once self::$fixturesPath.'/includes/ProjectExtension.php';
     }
 
-    public function testLoadFile()
+    /**
+     * @expectedException \Symfony\Component\DependencyInjection\Exception\InvalidArgumentException
+     * @expectedExceptionMessageRegExp /The file ".+" does not exist./
+     */
+    public function testLoadUnExistFile()
     {
         $loader = new YamlFileLoader(new ContainerBuilder(), new FileLocator(self::$fixturesPath.'/ini'));
         $r = new \ReflectionObject($loader);
         $m = $r->getMethod('loadFile');
         $m->setAccessible(true);
 
-        try {
-            $m->invoke($loader, 'foo.yml');
-            $this->fail('->load() throws an InvalidArgumentException if the loaded file does not exist');
-        } catch (\Exception $e) {
-            $this->assertInstanceOf('\InvalidArgumentException', $e, '->load() throws an InvalidArgumentException if the loaded file does not exist');
-            $this->assertEquals('The service file "foo.yml" is not valid.', $e->getMessage(), '->load() throws an InvalidArgumentException if the loaded file does not exist');
-        }
+        $m->invoke($loader, 'foo.yml');
+    }
 
-        try {
-            $m->invoke($loader, 'parameters.ini');
-            $this->fail('->load() throws an InvalidArgumentException if the loaded file is not a valid YAML file');
-        } catch (\Exception $e) {
-            $this->assertInstanceOf('\InvalidArgumentException', $e, '->load() throws an InvalidArgumentException if the loaded file is not a valid YAML file');
-            $this->assertEquals('The service file "parameters.ini" is not valid.', $e->getMessage(), '->load() throws an InvalidArgumentException if the loaded file is not a valid YAML file');
-        }
+    /**
+     * @expectedException \Symfony\Component\DependencyInjection\Exception\InvalidArgumentException
+     * @expectedExceptionMessageRegExp /The file ".+" does not contain valid YAML./
+     */
+    public function testLoadInvalidYamlFile()
+    {
+        $path = self::$fixturesPath.'/ini';
+        $loader = new YamlFileLoader(new ContainerBuilder(), new FileLocator($path));
+        $r = new \ReflectionObject($loader);
+        $m = $r->getMethod('loadFile');
+        $m->setAccessible(true);
 
-        $loader = new YamlFileLoader(new ContainerBuilder(), new FileLocator(self::$fixturesPath.'/yaml'));
-
-        foreach (array('nonvalid1', 'nonvalid2') as $fixture) {
-            try {
-                $m->invoke($loader, $fixture.'.yml');
-                $this->fail('->load() throws an InvalidArgumentException if the loaded file does not validate');
-            } catch (\Exception $e) {
-                $this->assertInstanceOf('\InvalidArgumentException', $e, '->load() throws an InvalidArgumentException if the loaded file does not validate');
-                $this->assertStringMatchesFormat('The service file "nonvalid%d.yml" is not valid.', $e->getMessage(), '->load() throws an InvalidArgumentException if the loaded file does not validate');
-            }
-        }
+        $m->invoke($loader, $path.'/parameters.ini');
     }
 
     /**
@@ -90,6 +83,8 @@ class YamlFileLoaderTest extends TestCase
             array('bad_service'),
             array('bad_calls'),
             array('bad_format'),
+            array('nonvalid1'),
+            array('nonvalid2'),
         );
     }
 
@@ -98,7 +93,7 @@ class YamlFileLoaderTest extends TestCase
         $container = new ContainerBuilder();
         $loader = new YamlFileLoader($container, new FileLocator(self::$fixturesPath.'/yaml'));
         $loader->load('services2.yml');
-        $this->assertEquals(array('foo' => 'bar', 'mixedcase' => array('MixedCaseKey' => 'value'), 'values' => array(true, false, 0, 1000.3), 'bar' => 'foo', 'escape' => '@escapeme', 'foo_bar' => new Reference('foo_bar')), $container->getParameterBag()->all(), '->load() converts YAML keys to lowercase');
+        $this->assertEquals(array('foo' => 'bar', 'mixedcase' => array('MixedCaseKey' => 'value'), 'values' => array(true, false, 0, 1000.3, PHP_INT_MAX), 'bar' => 'foo', 'escape' => '@escapeme', 'foo_bar' => new Reference('foo_bar')), $container->getParameterBag()->all(), '->load() converts YAML keys to lowercase');
     }
 
     public function testLoadImports()
@@ -114,34 +109,12 @@ class YamlFileLoaderTest extends TestCase
         $loader->load('services4.yml');
 
         $actual = $container->getParameterBag()->all();
-        $expected = array('foo' => 'bar', 'values' => array(true, false), 'bar' => '%foo%', 'escape' => '@escapeme', 'foo_bar' => new Reference('foo_bar'), 'mixedcase' => array('MixedCaseKey' => 'value'), 'imported_from_ini' => true, 'imported_from_xml' => true);
+        $expected = array('foo' => 'bar', 'values' => array(true, false, PHP_INT_MAX), 'bar' => '%foo%', 'escape' => '@escapeme', 'foo_bar' => new Reference('foo_bar'), 'mixedcase' => array('MixedCaseKey' => 'value'), 'imported_from_ini' => true, 'imported_from_xml' => true);
         $this->assertEquals(array_keys($expected), array_keys($actual), '->load() imports and merges imported files');
+        $this->assertTrue($actual['imported_from_ini']);
 
         // Bad import throws no exception due to ignore_errors value.
         $loader->load('services4_bad_import.yml');
-    }
-
-    /**
-     * @group legacy
-     */
-    public function testLegacyLoadServices()
-    {
-        $container = new ContainerBuilder();
-        $loader = new YamlFileLoader($container, new FileLocator(self::$fixturesPath.'/yaml'));
-        $loader->load('legacy-services6.yml');
-        $services = $container->getDefinitions();
-        $this->assertEquals('FooClass', $services['constructor']->getClass());
-        $this->assertEquals('getInstance', $services['constructor']->getFactoryMethod());
-        $this->assertEquals('BazClass', $services['factory_service']->getClass());
-        $this->assertEquals('baz_factory', $services['factory_service']->getFactoryService());
-        $this->assertEquals('getInstance', $services['factory_service']->getFactoryMethod());
-        $this->assertEquals('container', $services['scope.container']->getScope());
-        $this->assertEquals('custom', $services['scope.custom']->getScope());
-        $this->assertEquals('prototype', $services['scope.prototype']->getScope());
-        $this->assertTrue($services['request']->isSynthetic(), '->load() parses the synthetic flag');
-        $this->assertTrue($services['request']->isSynchronized(), '->load() parses the synchronized flag');
-        $this->assertTrue($services['request']->isLazy(), '->load() parses the lazy flag');
-        $this->assertNull($services['request']->getDecoratedService());
     }
 
     public function testLoadServices()
@@ -187,6 +160,17 @@ class YamlFileLoaderTest extends TestCase
 
         $this->assertEquals(array(new Reference('baz'), 'getClass'), $services['factory']->getFactory(), '->load() parses the factory tag with service:method');
         $this->assertEquals(array('FooBacFactory', 'createFooBar'), $services['factory_with_static_call']->getFactory(), '->load() parses the factory tag with Class::method');
+    }
+
+    public function testLoadConfiguratorShortSyntax()
+    {
+        $container = new ContainerBuilder();
+        $loader = new YamlFileLoader($container, new FileLocator(self::$fixturesPath.'/yaml'));
+        $loader->load('services_configurator_short_syntax.yml');
+        $services = $container->getDefinitions();
+
+        $this->assertEquals(array(new Reference('foo_bar_configurator'), 'configure'), $services['foo_bar']->getConfigurator(), '->load() parses the configurator tag with service:method');
+        $this->assertEquals(array('FooBarConfigurator', 'configureFooBar'), $services['foo_bar_with_static_call']->getConfigurator(), '->load() parses the configurator tag with Class::method');
     }
 
     public function testExtensions()

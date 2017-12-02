@@ -35,6 +35,11 @@ class ConfigurableResourceTypeRepository extends ResourceTypeRepository {
   protected $configFactory;
 
   /**
+   * @var \Drupal\jsonapi_extras\ResourceType\ConfigurableResourceType[]
+   */
+  protected $resourceTypes;
+
+  /**
    * {@inheritdoc}
    */
   public function __construct(EntityTypeManagerInterface $entity_type_manager, EntityTypeBundleInfoInterface $bundle_manager, EntityRepositoryInterface $entity_repository, ResourceFieldEnhancerManager $enhancer_manager, ConfigFactoryInterface $config_factory) {
@@ -81,18 +86,29 @@ class ConfigurableResourceTypeRepository extends ResourceTypeRepository {
    *   An array of resource types.
    */
   public function getResourceTypes($include_disabled = TRUE) {
+    if (isset($this->resourceTypes)) {
+      return $this->resourceTypes;
+    }
+
     $entity_type_ids = array_keys($this->entityTypeManager->getDefinitions());
 
     $resource_types = [];
+
+    $resource_config_ids = [];
     foreach ($entity_type_ids as $entity_type_id) {
       $bundles = array_keys($this->bundleManager->getBundleInfo($entity_type_id));
-      $current_types = array_map(function ($bundle) use ($entity_type_id, $include_disabled) {
+      $resource_config_ids = array_merge($resource_config_ids, array_map(function ($bundle) use ($entity_type_id) {
+        return sprintf('%s--%s', $entity_type_id, $bundle);
+      }, $bundles));
+    }
+
+    $resource_configs = $this->entityTypeManager->getStorage('jsonapi_resource_config')->loadMultiple($resource_config_ids);
+
+    foreach ($entity_type_ids as $entity_type_id) {
+      $bundles = array_keys($this->bundleManager->getBundleInfo($entity_type_id));
+      $current_types = array_map(function ($bundle) use ($entity_type_id, $include_disabled, $resource_configs) {
         $resource_config_id = sprintf('%s--%s', $entity_type_id, $bundle);
-        $resource_config = $this->entityRepository->loadEntityByConfigTarget(
-          'jsonapi_resource_config',
-          $resource_config_id
-        );
-        $resource_config = $resource_config ?: new NullJsonapiResourceConfig([], '');
+        $resource_config = isset($resource_configs[$resource_config_id]) ? $resource_configs[$resource_config_id] : new NullJsonapiResourceConfig([], '');
         if (!$include_disabled && $resource_config->get('disabled')) {
           return NULL;
         }
@@ -108,7 +124,8 @@ class ConfigurableResourceTypeRepository extends ResourceTypeRepository {
       $resource_types = array_merge($resource_types, $current_types);
     }
 
-    return array_filter($resource_types);
+    $this->resourceTypes = array_filter($resource_types);
+    return $this->resourceTypes;
   }
 
 }

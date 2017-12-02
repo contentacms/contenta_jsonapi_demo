@@ -5,6 +5,8 @@
 
 .material-tooltip {
   pointer-events: auto;
+ //set max width to a readible length (700px max)
+  max-width: $max-readability-width;
 }
 
 h1 {
@@ -17,8 +19,7 @@ h2 {
     font-size: 1.3rem;
     font-weight: 300;
     line-height: 25px;
-    @extend .grey-text,
-    .text-darken-3;
+    color:$header-title-small;
   }
 }
 
@@ -49,18 +50,27 @@ body {
   }
 }
 
+.row.highlighted-container.material-container {
+  padding:0;
+ .region-highlighted > *:first-child {
+    padding-top:20px;
+  }
+ .region-highlighted > *:last-child {
+    padding-bottom:20px;
+  }
+}
+
 .row .row {
   padding: 20px 0;
 }
 
-td,
-th {
-  padding: 15px;
+hr {
+  border: 1px solid color($utility, "lighten-2");
+  margin: 1em 0;
 }
 
-hr {
-  border: 1px solid color("grey", "lighten-2");
-  margin: 1em 0;
+.v-middle {
+  vertical-align: middle;
 }
 
 // Inputs inside dropbuttons dont align properly without this browser specifc styling.
@@ -78,7 +88,7 @@ label {
 .description {
   //tooltip readability
   .material-tooltip {
-    max-width: 36em;
+    max-width: $max-readability-width;
     line-height: 1.5em;
     font-weight: 100;
   }
@@ -87,6 +97,10 @@ label {
 .tooltipped,
 .filter-help {
   font-size: .8em;
+  .material-icons {
+    font-size: 1.5em;
+    vertical-align: text-bottom;
+  }
 }
 .filter-help {
   text-align: right;
@@ -97,65 +111,69 @@ label {
 
 }
 
-.description.modal-trigger {
-  text-transform: none;
-  font-size: .8em;
-  padding: 0;
-  margin: 10px 5px;
-  display: block;
-  color: color("light-blue", "darken-1")
+.error-text-color, .button--danger {
+ color: $error-text;
 }
 
-.error-text-color {
-  @extend .red-text,
-  .text-lighten-3;
+.color-error {
+  background: color($error-color-base, "lighten-4");
+}
+
+.error-color,
+.errors-color {
+  background:$error-bg;
 }
 
 .warning-text-color {
-  @extend .yellow-text,
-  .text-darken-2;
+ color:$warning-text;
+}
+
+.color-warning {
+background: color($warning-color-base, "lighten-4");
+}
+
+.warning-color,
+.warnings-color {
+  background:$warning-bg;
 }
 
 .status-text-color {
-  @extend .green-text,
-  .text-darken-2;
+  color:$status-text;
 }
 
-.color-warning,
-.warning-color,
-.warnings-color {
-  @extend .yellow,
-  .lighten-4;
+.color-success {
+background: color($status-color-base, "lighten-4");
 }
 
-.color-success,
 .status-color,
 .checked-color {
-  @extend .green,
-  .lighten-4
-}
-
-.color-error,
-.error-color,
-.errors-color {
-  @extend .red,
-  .lighten-4;
+  background:$status-bg;
 }
 
 .button-action {
-  @extend .btn,
-  .red,
-  .accent-2,
-  .white-text;
+  @extend .btn;
+  background:$button-action;
+  color:$button-action-text;
   &:before {
     @extend .material-icons;
     content: 'add';
-    color: color("shades", "white");
+    color: $white;
     margin: 0 10px 0 0px;
   }
   &:hover {
-    @extend .lighten-1;
+    background: $button-action-hover;
   }
+}
+
+
+.button.button--danger{
+  &:hover {
+  background:color($utility,"lighten-4")!important;
+}
+}
+
+.btn-flat-action {
+  color:color($action, "accent-2")
 }
 
 .inline {
@@ -166,7 +184,7 @@ label {
 .button-link {
   @extend .btn-flat;
   &:hover {
-    background:color("grey","lighten-3")
+    background:color($utility,"lighten-3")
   }
 }
 
@@ -174,7 +192,7 @@ label {
   content: 'keyboard_arrow_right';
   right: 20px;
   position: absolute;
-  color: color("grey", "base");
+  color: color($utility, "base");
   font-weight: 700;
   font-size: 1.5em;
 }
@@ -182,7 +200,7 @@ label {
 .collapse-down {
   content: 'keyboard_arrow_down';
   right: 20px;
-  color: color("grey", "base");
+  color: color($utility, "base");
   position: absolute;
   font-weight: 700;
   font-size: 1.5em;
@@ -204,10 +222,6 @@ label {
 }
 
 .select-wrapper input.select-dropdown {
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -o-user-select: none; // latest Opera versions support -webkit-
   user-select: none;
 }
 
@@ -243,20 +257,20 @@ a.button {
 }
 
 .x-small {
-  height: 150px;
+  height: $card-xs-height;
 }
 
 .card {
   .card-content {
     .card-title {
-      line-height: 35px;
+      line-height: $card-title-height;
     }
   }
 }
 
 .card-action {
   li {
-    display: inline;
+    display: inline-block;
   }
   a {
     color: $card-link-color;
@@ -270,7 +284,7 @@ a.button {
 }
 
 .shadow {
-  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2)
+  @extend .z-depth-1;
 }
 
 details {
@@ -282,7 +296,6 @@ details {
 }
 
 .button--small {
-  @extend .btn-flat;
   font-size: .8em;
 }
 
@@ -301,10 +314,9 @@ details {
   position: relative;
   &.active {
     .collapsible-header.with-arrows {
-      &:before {
-        @extend .material-icons;
-        content: 'keyboard_arrow_down';
-        padding: 0px 5px;
+      &:after {
+        @extend .material-icons, .collapse-down;
+
       }
     }
     .collapsible-header.right-arrows {
@@ -316,10 +328,8 @@ details {
     }
   }
   .collapsible-header.with-arrows {
-    &:before {
-      @extend .material-icons;
-      content: 'keyboard_arrow_right';
-      padding: 0px 5px;
+    &:after {
+      @extend .material-icons, .collapse-right;
     }
   }
   .collapsible-header.right-arrows {
@@ -346,10 +356,9 @@ details.form-wrapper summary {
 
 // for the default drupal 'marker' add the badge styles 
 span.marker {
-  @extend .badge,
-  .teal,
-  .lighten-2,
-  .white-text;
+  @extend .badge;
+  background: color($accent, "lighten-2");
+  color:$white;
   font-size: .8em;
   font-weight: 300;
   border-radius: 2px;
@@ -384,33 +393,4 @@ span.marker {
 
 .collection.with-header .collection-header.no-bottom-border {
   border-bottom: 0;
-}
-
-.progress {
-  overflow: inherit;
-  height: 10px;
-  .progress__track {
-    background-color: color("teal", "accent-1");
-    border-color: color("teal", "accent-1");
-    background-image: none;
-    box-shadow: none;
-    border-radius: 0;
-    height: 10px;
-    .progress__bar {
-      @extend .determinate;
-      border: 0;
-      background: none;
-      background-color: color("teal", "lighten-1");
-      margin: 0;
-      height: 10px;
-      border-radius: 0;
-    }
-  }
-}
-
-.message-action {
-  font-size: .8rem;
-  font-weight: 500;
-  margin-right: 0;
-  margin-left: 3rem;
 }

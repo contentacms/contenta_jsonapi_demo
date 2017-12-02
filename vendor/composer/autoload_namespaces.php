@@ -12,7 +12,6 @@ return array(
     'Utilities\\' => array($vendorDir . '/skyscanner/jsonpath/src/Skyscanner'),
     'Twig_' => array($vendorDir . '/twig/twig/lib'),
     'Stack' => array($vendorDir . '/stack/builder/src'),
-    'Rs\\Json' => array($vendorDir . '/php-jsonpointer/php-jsonpointer/src'),
     'Prophecy\\' => array($vendorDir . '/phpspec/prophecy/src'),
     'JsonPath\\' => array($vendorDir . '/skyscanner/jsonpath/src/Skyscanner'),
     'JakubOnderka\\PhpConsoleHighlighter' => array($vendorDir . '/jakub-onderka/php-console-highlighter/src'),
@@ -36,5 +35,4 @@ return array(
     'Behat\\MinkExtension' => array($vendorDir . '/behat/mink-extension/src'),
     'Behat\\Gherkin' => array($vendorDir . '/behat/gherkin/src'),
     'Behat\\Behat' => array($vendorDir . '/behat/behat/src'),
-    'Asm89\\Stack' => array($vendorDir . '/asm89/stack-cors/src'),
 );

@@ -20,6 +20,52 @@ class AnnotatedCommandFactoryTests extends \PHPUnit_Framework_TestCase
     protected $commandFileInstance;
     protected $commandFactory;
 
+    function testFibonacci()
+    {
+        $this->commandFileInstance = new \Consolidation\TestUtils\ExampleCommandFile;
+        $this->commandFactory = new AnnotatedCommandFactory();
+        $commandInfo = $this->commandFactory->createCommandInfo($this->commandFileInstance, 'fibonacci');
+
+        $command = $this->commandFactory->createCommand($commandInfo, $this->commandFileInstance);
+        $this->assertEquals('fibonacci', $command->getName());
+        $this->assertEquals('fibonacci [--graphic] [--] <start> <steps>', $command->getSynopsis());
+        $this->assertEquals('Calculate the fibonacci sequence between two numbers.', $command->getDescription());
+        $this->assertEquals("Graphic output will look like
++----+---+-------------+
+|    |   |             |
+|    |-+-|             |
+|----+-+-+             |
+|        |             |
+|        |             |
+|        |             |
++--------+-------------+", $command->getHelp());
+
+        $this->assertInstanceOf('\Symfony\Component\Console\Command\Command', $command);
+
+        $input = new StringInput('help fibonacci');
+        $this->assertRunCommandViaApplicationContains($command, $input, ['Display the sequence graphically using cube representation']);
+    }
+
+    function testSniff()
+    {
+        $this->commandFileInstance = new \Consolidation\TestUtils\ExampleCommandFile;
+        $this->commandFactory = new AnnotatedCommandFactory();
+        $commandInfo = $this->commandFactory->createCommandInfo($this->commandFileInstance, 'sniff');
+
+        $command = $this->commandFactory->createCommand($commandInfo, $this->commandFileInstance);
+        $this->assertEquals('sniff', $command->getName());
+        $this->assertEquals('sniff [--autofix] [--strict] [--] [<file>]', $command->getSynopsis());
+
+        $this->assertInstanceOf('\Symfony\Component\Console\Command\Command', $command);
+
+        $input = new StringInput('help sniff');
+        $this->assertRunCommandViaApplicationContains($command, $input, ['A file or directory to analyze.']);
+
+        $input = new StringInput('sniff --autofix --strict -- foo');
+        $this->assertRunCommandViaApplicationContains($command, $input, ["'autofix' => true",
+        "'strict' => true"]);
+    }
+
     function testOptionDefaultValue()
     {
         $this->commandFileInstance = new \Consolidation\TestUtils\ExampleCommandFile;
@@ -61,6 +107,71 @@ class AnnotatedCommandFactoryTests extends \PHPUnit_Framework_TestCase
         $this->assertRunCommandViaApplicationContains($command, $input, ['The "--foo" option requires a value.'], 1);
     }
 
+    function testGlobalOptionsOnly()
+    {
+        $this->commandFileInstance = new \Consolidation\TestUtils\ExampleCommandFile;
+        $this->commandFactory = new AnnotatedCommandFactory();
+        $commandInfo = $this->commandFactory->createCommandInfo($this->commandFileInstance, 'globalOptionsOnly');
+
+        $command = $this->commandFactory->createCommand($commandInfo, $this->commandFileInstance);
+
+        $input = new StringInput('global-options-only test');
+        $this->assertRunCommandViaApplicationEquals($command, $input, "Arg is test, options[help] is false");
+    }
+
+    function testOptionWithOptionalValue()
+    {
+        $this->commandFileInstance = new \Consolidation\TestUtils\ExampleCommandFile;
+        $this->commandFactory = new AnnotatedCommandFactory();
+
+        $commandInfo = $this->commandFactory->createCommandInfo($this->commandFileInstance, 'defaultOptionalValue');
+
+        $command = $this->commandFactory->createCommand($commandInfo, $this->commandFileInstance);
+
+        // Test to see if we can differentiate between a missing option, and
+        // an option that has no value at all.
+        $input = new StringInput('default:optional-value --foo=bar');
+        $this->assertRunCommandViaApplicationEquals($command, $input, "Foo is 'bar'");
+
+        $input = new StringInput('default:optional-value --foo');
+        $this->assertRunCommandViaApplicationEquals($command, $input, 'Foo is true');
+
+        $input = new StringInput('default:optional-value');
+        $this->assertRunCommandViaApplicationEquals($command, $input, 'Foo is NULL');
+    }
+
+    function testOptionThatDefaultsToTrue()
+    {
+        $this->commandFileInstance = new \Consolidation\TestUtils\ExampleCommandFile;
+        $this->commandFactory = new AnnotatedCommandFactory();
+
+        $commandInfo = $this->commandFactory->createCommandInfo($this->commandFileInstance, 'defaultOptionDefaultsToTrue');
+
+        $command = $this->commandFactory->createCommand($commandInfo, $this->commandFileInstance);
+
+        // Test to see if we can differentiate between a missing option, and
+        // an option that has no value at all.
+        $input = new StringInput('default:option-defaults-to-true --foo=bar');
+        $this->assertRunCommandViaApplicationEquals($command, $input, "Foo is 'bar'");
+
+        $input = new StringInput('default:option-defaults-to-true --foo');
+        $this->assertRunCommandViaApplicationEquals($command, $input, 'Foo is true');
+
+        $input = new StringInput('default:option-defaults-to-true');
+        $this->assertRunCommandViaApplicationEquals($command, $input, 'Foo is true');
+
+        $input = new StringInput('help default:option-defaults-to-true');
+        $this->assertRunCommandViaApplicationContains(
+            $command,
+            $input,
+            [
+                '--no-foo',
+                'Negate --foo option',
+            ]
+        );
+        $input = new StringInput('default:option-defaults-to-true --no-foo');
+        $this->assertRunCommandViaApplicationEquals($command, $input, 'Foo is false');
+    }
     /**
      * Test CommandInfo command caching.
      *
@@ -191,12 +302,10 @@ class AnnotatedCommandFactoryTests extends \PHPUnit_Framework_TestCase
         $this->assertEquals("This command will join its parameters together. It can also reverse and repeat its arguments.", $command->getHelp());
         $this->assertEquals('my:join [--flip] [--repeat [REPEAT]] [--] [<args>]...', $command->getSynopsis());
 
-        // Bug in parser: @usage with no parameters or options not passed to us correctly.
+        // TODO: Extra whitespace character if there are no options et. al. in the
+        // usage. This is uncommon, and the defect is invisible. Maybe find it someday.
         $actualUsages = implode(',', $command->getUsages());
-        if ($actualUsages == 'my:join a b,my:join Example with no parameters or options') {
-            $this->markTestSkipped();
-        }
-        $this->assertEquals('my:join a b,my:join', $actualUsages);
+        $this->assertEquals('my:join a b,my:join ', $actualUsages);
 
         $input = new StringInput('my:join bet alpha --flip --repeat=2');
         $this->assertRunCommandViaApplicationEquals($command, $input, 'alphabetalphabet');
@@ -863,14 +972,14 @@ class AnnotatedCommandFactoryTests extends \PHPUnit_Framework_TestCase
 
         $eventDispatcher = new \Symfony\Component\EventDispatcher\EventDispatcher();
         $eventDispatcher->addSubscriber($this->commandFactory->commandProcessor()->hookManager());
-        $eventDispatcher->addSubscriber($alterOptionsEventManager);
+        $this->commandFactory->commandProcessor()->hookManager()->addCommandEvent($alterOptionsEventManager);
         $application->setDispatcher($eventDispatcher);
 
         $application->setAutoExit(false);
         $application->add($command);
 
         $statusCode = $application->run($input, $output);
-        $commandOutput = trim($output->fetch());
+        $commandOutput = trim(str_replace("\r", '', $output->fetch()));
 
         return [$statusCode, $commandOutput];
     }

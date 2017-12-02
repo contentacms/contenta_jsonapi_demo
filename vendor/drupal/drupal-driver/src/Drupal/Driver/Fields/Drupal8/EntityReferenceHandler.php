@@ -14,11 +14,19 @@ class EntityReferenceHandler extends AbstractHandler {
     $return = array();
     $entity_type_id = $this->fieldInfo->getSetting('target_type');
     $entity_definition = \Drupal::entityManager()->getDefinition($entity_type_id);
-    $label_key = $entity_definition->getKey('label');
+
+    // Determine label field key.
+    if ($entity_type_id !== 'user') {
+      $label_key = $entity_definition->getKey('label');
+    }
+    else {
+      // Entity Definition->getKey('label') returns false for users.
+      $label_key = 'name';
+    }
 
     // Determine target bundle restrictions.
     $target_bundle_key = NULL;
-    if (!$target_bundles = $this->getTargetBundles()) {
+    if ($target_bundles = $this->getTargetBundles()) {
       $target_bundle_key = $entity_definition->getKey('bundle');
     }
 

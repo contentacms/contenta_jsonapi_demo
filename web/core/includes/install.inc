@@ -115,9 +115,10 @@ function drupal_install_profile_distribution_name() {
 /**
  * Loads the installation profile, extracting its defined version.
  *
- * @return string Distribution version defined in the profile's .info.yml file.
- *   Defaults to \Drupal::VERSION if no version is explicitly provided
- *   by the installation profile.
+ * @return string
+ *   Distribution version defined in the profile's .info.yml file.
+ *   Defaults to \Drupal::VERSION if no version is explicitly provided by the
+ *   installation profile.
  *
  * @see install_profile_info()
  */
@@ -485,17 +486,17 @@ function _drupal_rewrite_settings_dump_one(\stdClass $variable, $prefix = '', $s
 function drupal_install_config_directories() {
   global $config_directories, $install_state;
 
-  // Add a randomized config directory name to settings.php, unless it was
-  // manually defined in the existing already.
+  // If settings.php does not contain a config sync directory name we need to
+  // configure one.
   if (empty($config_directories[CONFIG_SYNC_DIRECTORY])) {
-    // @todo Should the info key be config_install or config_sync? The directory
-    //   can't be config/install because that would clash with module install.
-    if ($install_state['profile_info']['config_install']) {
-      $profile = $install_state['parameters']['profile'];
-      $config_directories[CONFIG_SYNC_DIRECTORY] = $install_state['profiles'][$profile]->getPath() . '/config/sync';
+    if (empty($install_state['config_install'])) {
+      // Add a randomized config directory name to settings.php
+      $config_directories[CONFIG_SYNC_DIRECTORY] = \Drupal::service('site.path') . '/files/config_' . Crypt::randomBytesBase64(55) . '/sync';
     }
     else {
-      $config_directories[CONFIG_SYNC_DIRECTORY] = \Drupal::service('site.path') . '/files/config_' . Crypt::randomBytesBase64(55) . '/sync';
+      // Install profiles can contain a config sync directory. If they do,
+      // 'config_install' is a path to the directory.
+      $config_directories[CONFIG_SYNC_DIRECTORY] = $install_state['config_install'];
     }
     $settings['config_directories'][CONFIG_SYNC_DIRECTORY] = (object) [
       'value' => $config_directories[CONFIG_SYNC_DIRECTORY],
@@ -539,8 +540,11 @@ function drupal_install_config_directories() {
  *
  * @deprecated in Drupal 8.1.x, will be removed before Drupal 9.0.x. Use
  *   config_get_config_directory() and file_prepare_directory() instead.
+ *
+ * @see https://www.drupal.org/node/2501187
  */
 function install_ensure_config_directory($type) {
+  @trigger_error('install_ensure_config_directory() is deprecated in Drupal 8.1.0 and will be removed before Drupal 9.0.0. Use config_get_config_directory() and file_prepare_directory() instead. See https://www.drupal.org/node/2501187.', E_USER_DEPRECATED);
   // The config directory must be defined in settings.php.
   global $config_directories;
   if (!isset($config_directories[$type])) {
@@ -1086,7 +1090,7 @@ function install_profile_info($profile, $langcode = 'en') {
       'version' => NULL,
       'hidden' => FALSE,
       'php' => DRUPAL_MINIMUM_PHP,
-      'config_install' => FALSE,
+      'config_install' => NULL,
     ];
     $profile_path = drupal_get_path('profile', $profile);
     $info = \Drupal::service('info_parser')->parse($profile_path . "/$profile.info.yml");
@@ -1100,7 +1104,9 @@ function install_profile_info($profile, $langcode = 'en') {
 
     $info['dependencies'] = array_unique(array_merge($required, $info['dependencies'], $locale));
 
-    if ($info['config_install']) {
+    // If the profile has a config/sync directory use that to install drupal.
+    if (is_dir($profile_path . '/config/sync')) {
+      $info['config_install'] = $profile_path . '/config/sync';
       $sync = new FileStorage($profile_path . '/config/sync');
       $info['config']['system.site'] = $sync->read('system.site');
     }

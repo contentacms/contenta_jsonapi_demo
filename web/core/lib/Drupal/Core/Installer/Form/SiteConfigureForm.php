@@ -146,14 +146,14 @@ class SiteConfigureForm extends ConfigFormBase {
     $form['site_information'] = [
       '#type' => 'fieldgroup',
       '#title' => $this->t('Site information'),
-      '#access' => !$install_state['profile_info']['config_install'],
+      '#access' => empty($install_state['config_install']),
     ];
     $form['site_information']['site_name'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Site name'),
       '#required' => TRUE,
       '#weight' => -20,
-      '#access' => !$install_state['profile_info']['config_install'],
+      '#access' => empty($install_state['config_install']),
     ];
     $form['site_information']['site_mail'] = [
       '#type' => 'email',
@@ -162,7 +162,7 @@ class SiteConfigureForm extends ConfigFormBase {
       '#description' => $this->t("Automated emails, such as registration information, will be sent from this address. Use an address ending in your site's domain to help prevent these emails from being flagged as spam."),
       '#required' => TRUE,
       '#weight' => -15,
-      '#access' => !$install_state['profile_info']['config_install'],
+      '#access' => empty($install_state['config_install']),
     ];
 
     $form['admin_account'] = [
@@ -192,7 +192,7 @@ class SiteConfigureForm extends ConfigFormBase {
     $form['regional_settings'] = [
       '#type' => 'fieldgroup',
       '#title' => $this->t('Regional settings'),
-      '#access' => !$install_state['profile_info']['config_install'],
+      '#access' => empty($install_state['config_install']),
     ];
     $countries = $this->countryManager->getList();
     $form['regional_settings']['site_default_country'] = [
@@ -203,31 +203,31 @@ class SiteConfigureForm extends ConfigFormBase {
       '#options' => $countries,
       '#description' => $this->t('Select the default country for the site.'),
       '#weight' => 0,
-      '#access' => !$install_state['profile_info']['config_install'],
+      '#access' => empty($install_state['config_install']),
     ];
     $form['regional_settings']['date_default_timezone'] = [
       '#type' => 'select',
       '#title' => $this->t('Default time zone'),
       // Use system timezone if set, but avoid throwing a warning in PHP >=5.4
       '#default_value' => @date_default_timezone_get(),
-      '#options' => system_time_zones(),
+      '#options' => system_time_zones(NULL, TRUE),
       '#description' => $this->t('By default, dates in this site will be displayed in the chosen time zone.'),
       '#weight' => 5,
       '#attributes' => ['class' => ['timezone-detect']],
-      '#access' => !$install_state['profile_info']['config_install'],
+      '#access' => empty($install_state['config_install']),
     ];
 
     $form['update_notifications'] = [
       '#type' => 'fieldgroup',
       '#title' => $this->t('Update notifications'),
       '#description' => $this->t('The system will notify you when updates and important security releases are available for installed components. Anonymous information about your site is sent to <a href=":drupal">Drupal.org</a>.', [':drupal' => 'https://www.drupal.org']),
-      '#access' => !$install_state['profile_info']['config_install'],
+      '#access' => empty($install_state['config_install']),
     ];
     $form['update_notifications']['enable_update_status_module'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Check for updates automatically'),
       '#default_value' => 1,
-      '#access' => !$install_state['profile_info']['config_install'],
+      '#access' => empty($install_state['config_install']),
     ];
     $form['update_notifications']['enable_update_status_emails'] = [
       '#type' => 'checkbox',
@@ -238,7 +238,7 @@ class SiteConfigureForm extends ConfigFormBase {
           'input[name="enable_update_status_module"]' => ['checked' => TRUE],
         ],
       ],
-      '#access' => !$install_state['profile_info']['config_install'],
+      '#access' => empty($install_state['config_install']),
     ];
 
     $form['actions'] = ['#type' => 'actions'];
@@ -267,7 +267,7 @@ class SiteConfigureForm extends ConfigFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     global $install_state;
 
-    if (!$install_state['profile_info']['config_install']) {
+    if (empty($install_state['config_install'])) {
       $this->config('system.site')
         ->set('name', (string) $form_state->getValue('site_name'))
         ->set('mail', (string) $form_state->getValue('site_mail'))
@@ -283,7 +283,7 @@ class SiteConfigureForm extends ConfigFormBase {
 
     // Enable update.module if this option was selected.
     $update_status_module = $form_state->getValue('enable_update_status_module');
-    if (!$install_state['profile_info']['config_install'] && $update_status_module) {
+    if (empty($install_state['config_install']) && $update_status_module) {
       $this->moduleInstaller->install(['file', 'update'], FALSE);
 
       // Add the site maintenance account's email address to the list of

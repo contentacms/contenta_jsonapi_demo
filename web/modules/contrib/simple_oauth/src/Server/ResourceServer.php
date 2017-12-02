@@ -3,7 +3,6 @@
 namespace Drupal\simple_oauth\Server;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
-use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
 use League\OAuth2\Server\ResourceServer as LeageResourceServer;
 use Symfony\Bridge\PsrHttpMessage\HttpFoundationFactoryInterface;
@@ -37,14 +36,17 @@ class ResourceServer implements ResourceServerInterface {
     HttpFoundationFactoryInterface $foundation_factory
   ) {
     try {
-      if ($public_key = $config_factory->get('simple_oauth.settings')->get('public_key')) {
+      $public_key = $config_factory->get('simple_oauth.settings')->get('public_key');
+      $public_key_real = realpath($public_key);
+      if ($public_key && $public_key_real) {
         $this->subject = new LeageResourceServer(
           $access_token_repository,
-          realpath($public_key)
+          $public_key_real
         );
       }
     }
-    catch (\LogicException $exception) {}
+    catch (\LogicException $exception) {
+    }
     $this->messageFactory = $message_factory;
     $this->foundationFactory = $foundation_factory;
   }

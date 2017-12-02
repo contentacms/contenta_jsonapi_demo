@@ -8,7 +8,6 @@
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Config\ConfigImporter;
 use Drupal\Core\Config\ConfigImporterException;
-use Drupal\Core\Config\FileStorage;
 use Drupal\Core\Config\StorageComparer;
 use Drupal\Core\DrupalKernel;
 use Drupal\Core\Database\Database;
@@ -192,6 +191,10 @@ function install_state_defaults() {
     // The last task that was completed during the previous installation
     // request.
     'completed_task' => NULL,
+    // Partial configuration cached during an installation from existing config.
+    'config' => NULL,
+    // The path to the configuration to install when installing from config.
+    'config_install' => NULL,
     // TRUE when there are valid config directories.
     'config_verified' => FALSE,
     // TRUE when there is a valid database connection.
@@ -322,6 +325,14 @@ function install_begin_request($class_loader, &$install_state) {
     header($request->server->get('SERVER_PROTOCOL') . ' 403 Forbidden');
     exit;
   }
+  if ($install_state['interactive'] && drupal_valid_test_ua()) {
+    // Set the default timezone. While this doesn't cause any tests to fail, PHP
+    // complains if 'date.timezone' is not set in php.ini. The Australia/Sydney
+    // timezone is chosen so all tests are run using an edge case scenario
+    // (UTC+10  and DST). This choice is made to prevent timezone related
+    // regressions and reduce the fragility of the testing system in general.
+    date_default_timezone_set('Australia/Sydney');
+  }
 
   $site_path = DrupalKernel::findSitePath($request, FALSE);
   Settings::initialize(dirname(dirname(__DIR__)), $site_path, $class_loader);
@@ -411,6 +422,7 @@ function install_begin_request($class_loader, &$install_state) {
   else {
     $environment = 'prod';
   }
+  $GLOBALS['conf']['container_service_providers']['InstallerConfigOverride'] = 'Drupal\Core\Installer\ConfigOverride';
 
   // Only allow dumping the container once the hash salt has been created.
   $kernel = InstallerKernel::createFromRequest($request, $class_loader, $environment, (bool) Settings::get('hash_salt', FALSE));
@@ -450,8 +462,8 @@ function install_begin_request($class_loader, &$install_state) {
   }
 
   // Use the language from profile configuration if available.
-  if (isset($install_state['profile_info']['config_install']) && $install_state['profile_info']['config_install']) {
-    $install_state['parameters']['langcode'] = $install_state['profile_info']['config']['system.site']['default_langcode'];
+  if (!empty($install_state['config_install']) && $install_state['config']['system.site']) {
+    $install_state['parameters']['langcode'] = $install_state['config']['system.site']['default_langcode'];
   }
   else {
     // Otherwise, Use the language from the profile configuration, if available,
@@ -764,8 +776,7 @@ function install_tasks($install_state) {
       'run' => $install_state['settings_verified'] ? INSTALL_TASK_SKIP : INSTALL_TASK_RUN_IF_NOT_COMPLETED,
       'function' => 'Drupal\Core\Installer\Form\SiteSettingsForm',
     ],
-    'install_write_profile' => [
-    ],
+    'install_write_profile' => [],
     'install_verify_database_ready' => [
       'run' => $install_state['database_ready'] ? INSTALL_TASK_SKIP : INSTALL_TASK_RUN_IF_NOT_COMPLETED,
     ],
@@ -780,10 +791,8 @@ function install_tasks($install_state) {
       'display_name' => t('Install site'),
       'type' => 'batch',
     ],
-    'install_profile_themes' => [
-    ],
-    'install_install_profile' => [
-    ],
+    'install_profile_themes' => [],
+    'install_install_profile' => [],
     'install_import_translations' => [
       'display_name' => t('Set up translations'),
       'display' => $needs_translations,
@@ -797,27 +806,32 @@ function install_tasks($install_state) {
     ],
   ];
 
+  if (!empty($install_state['config_install'])) {
+    // The chosen profile indicates that rather than installing a new site, an
+    // instance of the same site should be installed from the given
+    // configuration.
+    // That means we need to remove the steps installing the extensions and
+    // replace them with a configuration synchronisation step.
+    unset($tasks['install_download_translation']);
+    $key = array_search('install_profile_modules', array_keys($tasks), TRUE);
+    unset($tasks['install_profile_modules']);
+    unset($tasks['install_profile_themes']);
+    unset($tasks['install_install_profile']);
+    $config_tasks = [
+      'install_config_import_batch' => [
+        'display_name' => t('Install configuration'),
+        'type' => 'batch',
+      ],
+      'install_config_download_translations' => [],
+      'install_config_fix_profile' => [],
+    ];
+    $tasks = array_slice($tasks, 0, $key, TRUE) +
+      $config_tasks +
+      array_slice($tasks, $key, NULL, TRUE);
+  }
+
   // Now add any tasks defined by the installation profile.
   if (!empty($install_state['parameters']['profile'])) {
-    if ($install_state['profile_info']['config_install']) {
-      // @todo add a load of commentary about what is happening.
-      unset($tasks['install_download_translation']);
-      $key = array_search('install_profile_modules', array_keys($tasks), TRUE);
-      unset($tasks['install_profile_modules']);
-      unset($tasks['install_profile_themes']);
-      unset($tasks['install_install_profile']);
-      $config_tasks = [
-        'install_config_import_batch' => [
-          'display_name' => t('Install configuration'),
-          'type' => 'batch',
-        ],
-        'install_config_download_translations' => [],
-        'install_config_fix_profile' => [],
-      ];
-      $tasks = array_slice($tasks, 0, $key, TRUE) +
-        $config_tasks +
-        array_slice($tasks, $key, NULL, TRUE);
-    }
     // Load the profile install file, because it is not always loaded when
     // hook_install_tasks() is invoked (e.g. batch processing).
     $profile = $install_state['parameters']['profile'];
@@ -842,8 +856,7 @@ function install_tasks($install_state) {
       'type' => 'batch',
       'run' => $needs_translations ? INSTALL_TASK_RUN_IF_NOT_COMPLETED : INSTALL_TASK_SKIP,
     ],
-    'install_finished' => [
-    ],
+    'install_finished' => [],
   ];
 
   // Allow the installation profile to modify the full list of tasks.
@@ -1268,16 +1281,11 @@ function _install_select_profile(&$install_state) {
     }
   }
 
-  if (!Settings::get('extension_discovery_scan_tests')) {
-    // Get all visible (not hidden) profiles.
-    $visible_profiles = array_filter($install_state['profiles'], function ($profile) {
-      $profile_info = install_profile_info($profile->getName());
-      return !isset($profile_info['hidden']) || !$profile_info['hidden'];
-    });
-  }
-  else {
-    $visible_profiles = $install_state['profiles'];
-  }
+  // Get all visible (not hidden) profiles.
+  $visible_profiles = array_filter($install_state['profiles'], function ($profile) {
+    $profile_info = install_profile_info($profile->getName());
+    return !isset($profile_info['hidden']) || !$profile_info['hidden'];
+  });
 
   if (count($visible_profiles) == 1) {
     return (key($visible_profiles));
@@ -1498,6 +1506,14 @@ function install_load_profile(&$install_state) {
   $profile = $install_state['parameters']['profile'];
   $install_state['profiles'][$profile]->load();
   $install_state['profile_info'] = install_profile_info($profile, isset($install_state['parameters']['langcode']) ? $install_state['parameters']['langcode'] : 'en');
+  // If the profile has a config/sync directory copy the information to the
+  // install_state global.
+  if (!empty($install_state['profile_info']['config_install'])) {
+    $install_state['config_install'] = $install_state['profile_info']['config_install'];
+    if (!empty($install_state['profile_info']['config'])) {
+      $install_state['config'] = $install_state['profile_info']['config'];
+    }
+  }
 }
 
 /**
@@ -1844,10 +1860,11 @@ function _install_module_batch($module, $module_name, &$context) {
  * @param string $server_pattern
  *   Server access pattern (to replace language code, version number, etc. in).
  *
- * @return array
+ * @return array|null
  *   Requirements compliance array. If the translation was downloaded
  *   successfully then an empty array is returned. Otherwise the requirements
- *   error with detailed information.
+ *   error with detailed information. NULL if the file already exists for this
+ *   language code.
  */
 function install_check_translations($langcode, $server_pattern) {
   $requirements = [];
@@ -2258,14 +2275,13 @@ function install_write_profile($install_state) {
  * @see install_tasks()
  */
 function install_config_import_batch() {
-  global $config_directories;
   // We need to manually trigger the installation of core-provided entity types,
   // as those will not be handled by the module installer.
   // @see install_profile_modules()
   install_core_entity_type_definitions();
 
-  // Create a source storage that reads from sync.
-  $sync = new FileStorage($config_directories[CONFIG_SYNC_DIRECTORY]);
+  // Get the sync storage.
+  $sync = \Drupal::service('config.storage.sync');
   // Match up the site uuids, the install_base_system install task will have
   // installed the system module and created a new UUID.
   $system_site = $sync->read('system.site');
@@ -2306,11 +2322,13 @@ function install_config_import_batch() {
     return $batch;
   }
   catch (ConfigImporterException $e) {
+    global $install_state;
     // There are validation errors.
-    drupal_set_message(\Drupal::translation()->translate('The configuration synchronization failed validation.'));
+    drupal_set_message(t('The configuration synchronization failed validation.'), 'error');
     foreach ($config_importer->getErrors() as $message) {
       drupal_set_message($message, 'error');
     }
+    install_display_output(['#title' => t('Configuration validation')], $install_state);
   }
 }
 
@@ -2353,7 +2371,7 @@ function install_config_import_batch_finish($success, $results, $operations) {
         drupal_set_message($error, 'error');
         \Drupal::logger('config_sync')->error($error);
       }
-      drupal_set_message(\Drupal::translation()->translate('The configuration was imported with errors.'), 'warning');
+      drupal_set_message(t('The configuration was imported with errors.'), 'warning');
     }
     else {
       // Configuration sync needs a complete cache flush.
@@ -2364,11 +2382,10 @@ function install_config_import_batch_finish($success, $results, $operations) {
     // An error occurred.
     // $operations contains the operations that remained unprocessed.
     $error_operation = reset($operations);
-    $message = \Drupal::translation()
-      ->translate('An error occurred while processing %error_operation with arguments: @arguments', [
-        '%error_operation' => $error_operation[0],
-        '@arguments' => print_r($error_operation[1], TRUE)
-      ]);
+    $message = t('An error occurred while processing %error_operation with arguments: @arguments', [
+      '%error_operation' => $error_operation[0],
+      '@arguments' => print_r($error_operation[1], TRUE)
+    ]);
     drupal_set_message($message, 'error');
   }
 }
@@ -2420,11 +2437,13 @@ function install_config_fix_profile() {
       $config_importer->import();
     }
     catch (ConfigImporterException $e) {
+      global $install_state;
       // There are validation errors.
-      drupal_set_message(\Drupal::translation()->translate('The configuration synchronization failed validation.'));
+      drupal_set_message(t('The configuration synchronization failed validation.'), 'error');
       foreach ($config_importer->getErrors() as $message) {
         drupal_set_message($message, 'error');
       }
+      install_display_output(['#title' => t('Configuration validation')], $install_state);
     }
 
     // At this point the configuration should match completely.

@@ -1,1 +1,1 @@
-{"url":"git@github.com:contentacms/contenta_jsonapi_demo.git","ref":"master","sha":"0de819d5c6396397e0f377e7ce562dd42ea21610","comment":"ci(Circle): Remove composer self-update for permission issues","commit-date":"2017-09-14 15:46:15 +0200","build-date":"2017-10-17 21:42:56 +0000"}
+{"url":"git@github.com:contentacms/contenta_jsonapi_demo.git","ref":"master","sha":"00043dea0a73cd2a2d0fa0b68bbab185e2b6e83c","comment":"Build assets for dev.","commit-date":"2017-12-09 12:07:15 +0100","build-date":"2017-12-09 11:22:23 +0000"}

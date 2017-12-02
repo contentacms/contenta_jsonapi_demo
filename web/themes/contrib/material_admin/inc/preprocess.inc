@@ -139,6 +139,9 @@ function material_admin_preprocess_links__dropbutton(&$variables) {
     $views_classes = ['btn', 'btn-flat', 'darken-3', 'text-darken-2'];
     foreach ($variables['links'] as &$link) {
       if (isset($link['link'])) {
+        if (!isset($link['link']['#options']['attributes']['class'])) {
+          $link['link']['#options']['attributes']['class'] = [];
+        }
         $link_classes = &$link['link']['#options']['attributes']['class'];
         if (in_array('views-ajax-link', $link_classes)) {
           $link_classes = array_merge($link_classes, $views_classes);
@@ -170,4 +173,13 @@ function material_admin_preprocess_block(&$variables) {
 
     $variables['attributes']['class'] = array_diff($variables['attributes']['class'], ['contextual-region']);
   }
+}
+
+/**
+ * Implements hook_preprocess_textarea() for textarea content.
+ *
+ * set the default cols to 100 instead of Drupal default of 60, for better readability.
+ */
+function material_admin_preprocess_textarea(&$variables) {
+  $variables['attributes']['cols'] = '100';
 }

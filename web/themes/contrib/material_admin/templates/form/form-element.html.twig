@@ -52,18 +52,22 @@
     'form-type-' ~ type|clean_class,
     'js-form-item-' ~ name|clean_class,
     'form-item-' ~ name|clean_class,
-    label_display not in ['after', 'before'] ? 'form-no-label',
+    label_display == 'none' ? 'form-no-label',
     label_display in ['after', 'before'] ? 'form-has-label',
     disabled == 'disabled' ? 'form-disabled',
     type in ['textfield', 'select', 'password', 'email', 'number', 'tel', 'search', 'url', 'path', 'entity_autocomplete', 'file', 'managed_file', 'upload'] ? 'input-field',
     type in ['file', 'managed_file', 'upload'] ? 'file-field',
+    prefix and not suffix ? 'has-prefix',
+    suffix and not prefix ?  'has-suffix',
+    prefix and suffix ? 'has-prefix-and-suffix',
     errors ? 'form-item--error',
     children matches '/value="[^"]+"/' ? 'has-initial-content',
+    children matches '/placeholder="[^"]+"/' ? 'has-placeholder',
     description_display == 'after' ? 'has-description-after',
 ]
 %}
 <div{{ attributes.addClass(classes) }}>
-  {% if label_display in ['before', 'invisible', 'none'] %}
+  {% if label_display in ['before', 'invisible'] %}
     {{ label }}
   {% endif %}
   {% if prefix is not empty %}
@@ -86,7 +90,7 @@
       <strong>{{ errors }}</strong>
     </div>
   {% endif %}
-  {% if description_display in ['after', 'invisible'] and description.content %}
-   {% include '@material_admin/misc/description.html.twig' %}
+  {% if description_display in ['after', 'invisible'] %}
+    {% include '@material_admin/misc/description.html.twig' %}
   {% endif %}
 </div>

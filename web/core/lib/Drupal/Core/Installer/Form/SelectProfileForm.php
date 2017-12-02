@@ -4,7 +4,6 @@ namespace Drupal\Core\Installer\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Site\Settings;
 
 /**
  * Provides the profile selection form.
@@ -31,7 +30,7 @@ class SelectProfileForm extends FormBase {
       $details = install_profile_info($profile->getName());
       // Don't show hidden profiles. This is used by to hide the testing profile,
       // which only exists to speed up test runs.
-      if ($details['hidden'] === TRUE && !(drupal_valid_test_ua() || Settings::get('extension_discovery_scan_tests'))) {
+      if ($details['hidden'] === TRUE && !drupal_valid_test_ua()) {
         continue;
       }
       $profiles[$profile->getName()] = $details;

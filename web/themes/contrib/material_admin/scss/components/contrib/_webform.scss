@@ -1,0 +1,78 @@
+/* @file
+ * Webform overrides
+ *
+ */
+
+.webform-element-help {
+  font-size: 12px;
+  line-height: 10px;
+}
+
+.input-field label>[data-webform-help] {
+  pointer-events: initial;
+}
+
+.webform-tabs {
+  .ui-widget-header {
+    background: none;
+    border: none;
+    .ui-state-default {
+      background: none;
+      border: none;
+      a {
+        text-transform: uppercase;
+        color: $tabs-text-color;
+        opacity: 0.8;
+        transition: color .28s ease;
+        &:hover {
+          opacity: 1;
+        }
+      }
+    }
+    .ui-state-active {
+      background: none;
+      border: none;
+      border-bottom: 2px solid $tabs-text-color;
+      a {
+        color: $tabs-text-color;
+        opacity: 1;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        transition: color .28s ease;
+      }
+    }
+  }
+}
+
+.action-links .button-action.webform-ajax-link {
+  @extend .z-depth-1;
+  font-size: 1em;
+  margin-bottom: 2em;
+}
+
+.webform-modal {
+  .has-prefix-and-suffix,
+  .has-prefix {
+    >* {
+      display: inline-block;
+    }
+  }
+}
+
+.webform-form table{
+  a.button-action {
+    @extend .z-depth-0;
+  }
+}
+
+.ui-dialog-content .webform-ajax-link {
+  @extend .button-link,
+  .btn;
+}
+
+.webform-details-toggle-state-wrapper {
+  .webform-details-toggle-state {
+    @extend .button-link,
+    .btn;
+  }
+}

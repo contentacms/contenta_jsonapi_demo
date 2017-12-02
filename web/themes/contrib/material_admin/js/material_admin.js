@@ -11,20 +11,45 @@
         var label = $('label[for="' + this.id + '"]');
         $(this).insertBefore(label);
       });
+
+    }
+  };
+
+    Drupal.behaviors.material_multiple_select = {
+    attach: function (context) {
+      $(context).find('select[multiple]').once('material_multiple_select').each(function () {
+        $(this).prepend("<option value='' disabled > - </option>");
+      })
+     }
+  };
+  //If form API checkbox or radio has no label, add one so we can use materializecss styling
+  Drupal.behaviors.material_checkbox_no_label = {
+    attach: function (context) {
+      $(context).find('.form-no-label input[type=checkbox]:not(.item-switch), .form-no-label input[type=radio]').once('material_checkbox_no_label').each(function() {
+        if(this.nextSibling.nodeName != 'label') {
+          $(this).after('<label for="'+this.id+'"></label>')
+        }
+      })
     }
   };
   //trigger select boxes to be replaced with li for better styling
   // (not intended for cardinality select boxes)
   Drupal.behaviors.material_select_box = {
     attach: function (context) {
-      $(context).find('select').once('material_select_box').material_select();
+      $('select:not(.field-parent)', context).once('material_select_box').each(function () {
+        $(this).material_select();
+        $(this).parent('.select-wrapper').removeClass(function (index, className) {
+          return (className.match(/\S+delta-order/) || []).join(' ');
+        });
+      });
     }
   };
   // textareas that have initial content need to be auto resized.
   Drupal.behaviors.material_textarea = {
     attach: function (context) {
       $(document).ready(function () {
-        $(context).find('.form-textarea-wrapper textarea').once('material_textarea').each(function () {
+        var $textWrapper = $('.form-textarea-wrapper textarea');
+        $(context).find($textWrapper).once('material_textarea').each(function () {
           $(this).trigger('autoresize');
         })
       })
@@ -32,7 +57,8 @@
   };
   Drupal.behaviors.material_tooltip = {
     attach: function (context) {
-      $(context).find('.tooltipped').once('material_tooltip').tooltip({ delay: 150, html: true });
+      var $tooltipped = $('.tooltipped');
+      $(context).find($tooltipped).once('material_tooltip').tooltip({ delay: 150, html: true });
       $(document).once('material_tooltip')
         .on('mouseenter', '.material-tooltip', function() {
           $('[data-tooltip-id="' + this.id + '"]').trigger('mouseenter');
@@ -51,9 +77,16 @@
             $(this).find(' > label').addClass('inline-label');
           }
           Materialize.updateTextFields();
+          removeInitialContent(context);
         });
       });
     }
+  };
+
+  // remove initial class after materialize updates textfields
+  function removeInitialContent(context) {
+    var $initialContent = $('.has-initial-content');
+     $(context).find($initialContent).removeClass('has-initial-content');
   };
   //without a module, I dont have a method to get the current page title on certain non-node pages, this is a temp workaround.
   // @ToDO Titles in core need to be better descriptive of the actual page.
@@ -80,7 +113,8 @@
   }
   Drupal.behaviors.material_modal = {
     attach: function (context) {
-      $(context).find('.modal').once('material_modal').modal({
+      var $modal = $('.modal');
+      $(context).find($modal).once('material_modal').modal({
         dismissible: true,
         opacity: 0.5,
         in_duration: 200,
@@ -118,11 +152,7 @@
         .each(resizeInput);
     }
   };
-  Drupal.behaviors.material_admin_remove_initial_content = {
-    attach: function (context) {
-      $('.has-initial-content', context).removeClass('has-initial-content');
-    }
-  };
+
   Drupal.behaviors.material_admin_views_ui_add_button = {
     attach: function (context) {
       setTimeout(function () {
@@ -133,44 +163,17 @@
         }
         var $addDisplayDropdown = $menu.find('li.add > a');
         if ($addDisplayDropdown.length) {
-          $addDisplayDropdown.addClass('dropdown-button btn btn-flat darken-3 text-darken-2');
+          $addDisplayDropdown.addClass('dropdown-button');
         }
       });
     }
   };
-  // For the places that have anchor jump links, provide smooth scrolling
-  Drupal.behaviors.material_admin_smooth_anchor_scroll = {
-    attach: function () {
-      $('a[href*="#"]').not('a.vertical-tab-link').not('[href="#"]').not('[href="#0"]').click(function (event) {
-        if (location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '') && location.hostname == this.hostname) {
-          var target = $(this.hash);
-          target = target.length ? target : $('[name=' + this.hash.slice(1) + ']');
-          if (target.length) {
-            event.preventDefault();
-            $('html, body').animate({
-              scrollTop: target.offset().top
-            }, 1000, function () {
-              // Callback after animation
-              // Must change focus!
-              var $target = $(target);
-              $target.focus();
-              if ($target.is(":focus")) {
-                return false;
-              } else {
-                $target.attr('tabindex', '-1');
-                $target.focus();
-              }
-            });
-          }
-        }
-      });
-    }
-  };
+ 
   //jqueryUI dialog enhancments: disallow background page scroll when modal is open. allow clicking away from dialog to close modal.
   Drupal.behaviors.material_admin_jqueryui_dialog_enhancements = {
     attach: function (settings) {
       //if the checkbox is checked in the theme settings UI.
-      if (drupalSettings.material_admin.material_admin_jqueryui_dialog_close || drupalSettings.material_admin.material_admin_jqueryui_dialog_background) {
+      if (drupalSettings.material_admin && (drupalSettings.material_admin.material_admin_jqueryui_dialog_close || drupalSettings.material_admin.material_admin_jqueryui_dialog_background)) {
         $(document).ready(function () {
           $(window).on({
             'dialog:aftercreate': function (event, dialog, $modal, settings) {
@@ -198,4 +201,28 @@
       }
     }
   };
+
+  var ckeditor_wait = setInterval(function () {
+    if (typeof CKEDITOR !== 'undefined') {
+      clearInterval(ckeditor_wait);
+      for (var i in CKEDITOR.instances) {
+        CKEDITOR.instances[i].on('dialogShow', function (e) {
+          var element = e.data.parts.dialog.$;
+          element.parentElement.classList.remove('cke_reset_all');
+          element.style.width = 'auto';
+          var cancel = element.querySelector('.cke_dialog_ui_button_cancel');
+          var ok = element.querySelector('.cke_dialog_ui_button_ok');
+          if (cancel) {
+            cancel.classList.remove('cke_dialog_ui_button_cancel', 'cke_dialog_ui_button');
+            cancel.classList.add('btn', 'btn-flat', 'darken-3', 'text-darken-2');
+          }
+          if (ok) {
+            ok.classList.remove('cke_dialog_ui_button_ok', 'cke_dialog_ui_button');
+            ok.classList.add('btn', 'btn-flat', 'darken-3', 'text-darken-2');
+          }
+          Drupal.attachBehaviors(element);
+        });
+      }
+    }
+  }, 100);
 }(jQuery, Drupal));

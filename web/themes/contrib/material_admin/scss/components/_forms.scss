@@ -22,7 +22,7 @@
   i {
     font-size: 1.3em;
   }
-} 
+}
 
 //override materializecss: dont set form width, only max width and allow the form fields to use its length.
 input:not([type]), input[type=text]:not(.browser-default), input[type=password]:not(.browser-default), input[type=email]:not(.browser-default), input[type=url]:not(.browser-default), input[type=time]:not(.browser-default), input[type=date]:not(.browser-default), input[type=datetime]:not(.browser-default), input[type=datetime-local]:not(.browser-default), input[type=tel]:not(.browser-default), input[type=number]:not(.browser-default), input[type=search]:not(.browser-default) {
@@ -31,12 +31,11 @@ input:not([type]), input[type=text]:not(.browser-default), input[type=password]:
 }
 
 textarea.materialize-textarea {
-  padding: .8rem .5rem 1.6rem .5rem;
-  // since we cant use borderbox or it breaks the 'autoresize', set max width to accomidate for the padding.
-  max-width:95%;
-  width:inherit;
+  padding: .8rem .5rem 1.6rem .5rem; // since we cant use borderbox or it breaks the 'autoresize', set max width to accomidate for the padding.
+  max-width: 95%;
+  width: inherit;
   &:focus {
-    border:1px solid color("teal", "lighten-1");
+    border: 1px solid color($accent, "lighten-1");
   }
 }
 
@@ -55,6 +54,16 @@ textarea.materialize-textarea {
 .select-wrapper {
   max-width: 450px;
   width: 100%;
+  .caret {
+    visibility: hidden;
+    &:after {
+      @extend .material-icons;
+      content: 'arrow_drop_down';
+      visibility: visible;
+      font-size: 2.5em;
+      right: 0;
+    }
+  }
   .input.select-dropdown {
     max-width: inherit;
   }
@@ -68,7 +77,7 @@ textarea.materialize-textarea {
 
 .form-item, .filter-wrapper .form-item, .form-item.password-parent, .form-item.confirm-parent {
   margin: 25px 0;
-  &.form-has-label:not(.form-type-checkbox):not(.form-type-radio) {
+  &.form-has-label:not(.form-type-checkbox):not(.form-type-radio):not(.has-prefix):not(.has-prefix-and-suffix) {
     margin: 45px 0px 25px 0px;
   }
   position: relative;
@@ -76,7 +85,7 @@ textarea.materialize-textarea {
   .form-required {
     &:after {
       content: " *";
-      @extend .error-text-color;
+      color:$error-color;
     }
   }
 }
@@ -103,14 +112,15 @@ textarea.materialize-textarea {
 }
 
 //form items in tables require less margin (but only the tope level item)
-table td>.form-item, table td>.ajax-new-content>.form-item {
+table td>.form-item, table td>.ajax-new-content>.form-item, table td .fieldset-wrapper>.form-item {
   margin: 0;
   &~.form-wrapper {
     margin: 25px 0;
   }
-  .select-wrapper input.select-dropdown {
-    margin: 0;
-  }
+}
+
+table td .form-item .select-wrapper input.select-dropdown {
+  margin: 0;
 }
 
 .input-field.js-form-type-checkbox label {
@@ -125,7 +135,7 @@ input[type=checkbox] {
   .button {}
   .button--danger {
     @extend .btn-flat;
-    @extend .red-text, .lighten-2
+    color:$error-text;
   }
 }
 
@@ -136,32 +146,25 @@ input.btn {
   }
 }
 
-.draggable {
-  min-height: 30px;
-  a.tabledrag-handle {
-    float: none;
-    display: inline-block;
-    overflow: visible;
-    height: auto;
-    vertical-align: middle;
-    &~* {
-      display: inline-block;
-      vertical-align: middle;
-    }
-    .handle {
-      width: 30px;
-      height: 30px;
-    }
-  }
-}
-
 abbr.warning {
-  @extend .warning-text-color;
+ color:$warning-text;
   text-decoration: none;
 }
 
 .switch label {
   white-space: nowrap;
+}
+
+
+//switch labels are overridden, so it tries to add it in via JS, this prevents 2 labels.
+.switch label:not(.switch-label) {
+    position: relative !important;
+    clip: inherit;
+    visibility: hidden;
+    width: 1px;
+    display: inline-block;
+    vertical-align: middle;
+    padding:0;
 }
 
 .input-field.js-form-type-checkbox label {
@@ -192,6 +195,7 @@ input:not([type]), input[type=text], input[type=password], input[type=email], in
     visibility: hidden;
     width: 1px;
     display: inline-block;
+    vertical-align: middle;
     &:before, &:after {
       visibility: visible;
     }
@@ -217,7 +221,10 @@ details.form-wrapper {
     padding: 1rem 2rem; //prevent nested wrappers from providing too much z-depth
     details.form-wrapper {
       box-shadow: none;
-      border: 1px solid color("grey", "lighten-2")!important;
+      border: 1px solid color($utility, "lighten-2")!important;
+    }
+    .details-description {
+      padding:10px 0;
     }
   }
 }
@@ -269,6 +276,10 @@ details.form-wrapper {
   display: inline;
 }
 
+.container-inline label:empty:after, .container-inline .label:empty:after {
+  content: "";
+}
+
 .form--inline, .dblog-filter-form {
   .form-actions {
     padding: 0 10px;
@@ -281,57 +292,9 @@ details.form-wrapper {
   }
 }
 
-.ui-autocomplete {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  z-index: 1000;
-  float: left;
-  display: none;
-  min-width: 160px;
-  padding: 4px 0;
-  margin: 0 0 10px 25px;
-  list-style: none;
-  background-color: color("shades", "white");
-  border-color: color("grey", "lighten-1");
-  border-color: rgba(0, 0, 0, 0.2);
-  border-style: solid;
-  border-width: 1px;
-  -webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  border-radius: 5px;
-  box-shadow: none;
-  -webkit-background-clip: padding-box;
-  -moz-background-clip: padding;
-  background-clip: padding-box;
-  *border-right-width: 2px;
-  *border-bottom-width: 2px;
-}
-
-.ui-menu-item>a.ui-corner-all {
-  display: block;
-  padding: 3px 15px;
-  clear: both;
-  font-weight: normal;
-  line-height: 18px;
-  color: color("grey", "darken-2");
-  white-space: nowrap;
-  text-decoration: none;
-}
-
-.ui-state-hover, .ui-state-active {
-  @extend .white-text;
-  text-decoration: none;
-  background-color: color("blue", "darken-2");
-  border-radius: 0px;
-  -webkit-border-radius: 0px;
-  -moz-border-radius: 0px;
-  background-image: none;
-}
-
 a#edit-cancel {
   @extend .btn-flat;
-  @extend .warning-text-color;
+  color: $warning-text;
 }
 
 .node-multiple-delete-confirm input.form-submit {
@@ -371,6 +334,14 @@ a#edit-cancel {
   }
 }
 
+.has-prefix-and-suffix, .has-prefix, .has-suffix {
+  >* {
+    display:inline;
+    width:inherit;
+    vertical-align: middle;
+  }
+}
+
 .dblog-filter-form .form-item-type, .dblog-filter-form .form-item-severity {
   min-width: 300px;
 }
@@ -380,15 +351,17 @@ a#edit-cancel {
 }
 
 .input-field.has-initial-content .select-wrapper+label {
-  position: absolute;
-  top: -14px;
-  font-size: 0.8rem;
-  transform: inherit;
+  transform:none;
+  transition:none;
 }
 
 .input-field.has-initial-content label {
   transform: translateY(-14px) scale(0.8);
   transform-origin: 0 0;
+}
+
+.input-field.has-placeholder label {
+  transform: none;
 }
 
 .input-field.file-field {
@@ -407,16 +380,23 @@ a#edit-cancel {
 
 .input-field {
   .search-wrapper {
+    i.material-icons {
+      display: inline-block;
+      padding-right: 10px;
+      font-size: 1.25em;
+      vertical-align: middle;
+    }
+    //align description with the textfield rather than the icon
+    ~ .description {
+      margin-left:40px;
+    }
     margin: 0 12px;
     input[type=search] {
       padding-left: 0;
+      display: inline-block;
       &:focus {
-        border-bottom: 1px solid color("teal", "lighten-1")
+        border-bottom: 1px solid color($accent, "lighten-1");
       }
-    }
-    i.prefix {
-      font-size: 1.5rem;
-      margin-top: 12px;
     }
   }
 }
@@ -429,9 +409,9 @@ a#edit-cancel {
       padding: 10px 20px;
       display: block;
       width: 100%;
-      @extend .teal-text, .lighten-1;
+      color: color($accent, "lighten-1");
       &:hover {
-        background: #ddd;
+        background: color($utility, "lighten-2");
         text-decoration: none;
       }
     }
@@ -500,20 +480,44 @@ i.waves-input-wrapper {
   }
 }
 
-.form-type-radio.form-no-label {
-  input.form-radio {
-    opacity: 1;
-    position: relative;
-    pointer-events: initial;
+fieldset.form-wrapper {
+  margin-left: 0px;
+  padding: 10px;
+  legend {
+    margin: 0 5px 5px 0;
+    span.fieldset-legend {
+      @extend .z-depth-1;
+      background: color($primary, "base");
+      color:$white;
+      font-size: 16px;
+      padding: 5px 10px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      &:empty {
+        display: none;
+        padding: 5px 10px;
+      }
+    }
   }
 }
 
-fieldset.form-wrapper {
-  span.fieldset-legend {
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    padding: 1em 0 .5em 0;
-    display: block;
+// For fieldgroups dont use teh fieldset border or z-depth to reduce clutter.
+fieldset.fieldgroup.form-wrapper {
+  padding-left:0;
+  legend {
+    font-weight:500;
+    margin:15px 0 0 0;
+    span.fieldset-legend {
+      @extend .z-depth-0;
+      background: color($utility, "lighten-5");
+      color: color($primary, "base");
+      padding-left:0;
+    }
+  }
+  .fieldset-wrapper {
+    .form-radios {
+      margin-top:10px;
+    }
   }
 }
 
@@ -532,8 +536,4 @@ fieldset.form-wrapper {
   div.description {
     margin-bottom: 30px;
   }
-}
-
-.container-inline label:empty:after, .container-inline .label:empty:after {
-  content: "";
 }

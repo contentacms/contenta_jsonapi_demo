@@ -3,6 +3,7 @@
 namespace Drupal\jsonapi_extras\Form;
 
 use Drupal\Core\Config\ImmutableConfig;
+use Drupal\Core\Config\TypedConfigManagerInterface;
 use Drupal\Core\Entity\ContentEntityTypeInterface;
 use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Entity\EntityForm;
@@ -72,6 +73,11 @@ class JsonapiResourceConfigForm extends EntityForm {
   protected $request;
 
   /**
+   * @var \Drupal\Core\Config\TypedConfigManagerInterface
+   */
+  protected $typedConfigManager;
+
+  /**
    * JsonapiResourceConfigForm constructor.
    *
    * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $bundle_info
@@ -87,8 +93,9 @@ class JsonapiResourceConfigForm extends EntityForm {
    * @param \Drupal\Core\Config\ImmutableConfig $config
    *   The config instance.
    * @param \Symfony\Component\HttpFoundation\Request $request
+   * @param \Drupal\Core\Config\TypedConfigManagerInterface $typed_config_manager
    */
-  public function __construct(EntityTypeBundleInfoInterface $bundle_info, ResourceTypeRepository $resource_type_repository, EntityFieldManager $field_manager, EntityTypeRepositoryInterface $entity_type_repository, ResourceFieldEnhancerManager $enhancer_manager, ImmutableConfig $config, Request $request) {
+  public function __construct(EntityTypeBundleInfoInterface $bundle_info, ResourceTypeRepository $resource_type_repository, EntityFieldManager $field_manager, EntityTypeRepositoryInterface $entity_type_repository, ResourceFieldEnhancerManager $enhancer_manager, ImmutableConfig $config, Request $request, TypedConfigManagerInterface $typed_config_manager) {
     $this->bundleInfo = $bundle_info;
     $this->resourceTypeRepository = $resource_type_repository;
     $this->fieldManager = $field_manager;
@@ -96,6 +103,7 @@ class JsonapiResourceConfigForm extends EntityForm {
     $this->enhancerManager = $enhancer_manager;
     $this->config = $config;
     $this->request = $request;
+    $this->typedConfigManager = $typed_config_manager;
   }
 
   /**
@@ -109,7 +117,8 @@ class JsonapiResourceConfigForm extends EntityForm {
       $container->get('entity_type.repository'),
       $container->get('plugin.manager.resource_field_enhancer'),
       $container->get('config.factory')->get('jsonapi_extras.settings'),
-      $container->get('request_stack')->getCurrentRequest()
+      $container->get('request_stack')->getCurrentRequest(),
+      $container->get('config.typed')
     );
   }
 
@@ -165,50 +174,18 @@ class JsonapiResourceConfigForm extends EntityForm {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
-    $form_values = $form_state->getValues();
-    $resourceFields = $form_values['resourceFields'];
-    $overrides = [];
-
-    // Get the field values
-    foreach ($resourceFields as $field => $data) {
-      // Only get the overridden fields.
-      if ($data['fieldName'] != $data['publicName']) {
-        // Store the publicName for comparison.
-        $overrides[$field] = $data['publicName'];
-      }
+    if (!method_exists($this->typedConfigManager, 'createFromNameAndData')) {
+      // Versions of Drupal before 8.4 have poor support for constraints. In
+      // those scenarios we don't validate the form submission.
+      return;
     }
-
-    // Compare the overrides and find any duplicate values.
-    $deduped_overrides = array_unique($overrides);
-    $dupes = array_diff_assoc($overrides, $deduped_overrides);
-    // Set an error if there are duplicates.
-    if ($dupes) {
-      foreach ($dupes as $field => $value) {
-        $form_state->setErrorbyName('resourceFields][' . $field . '][publicName', $this->t('The override must be unique.'));
-      }
-    }
-    // Now compare the overrides with the default names to validate no dupes exist.
-    foreach ($overrides as $field => $override) {
-      if (array_key_exists($override, $resourceFields)) {
-        $form_state->setErrorByName('resourceFields][' . $field . '][publicName', $this->t('The override must be unique.'));
-      }
-    }
-
-    // Validate URL and resource type
-    $resource_types = $this->entityTypeManager
-      ->getStorage('jsonapi_resource_config')
-      ->loadByProperties(['disabled' => FALSE]);
-    foreach ($resource_types as $id => $resource_type) {
-      if ($this->entity->id() == $id) {
-        continue;
-      }
-
-      if ($resource_type->get('resourceType') == $form_values['resourceType']) {
-        $form_state->setErrorByName('resourceType', $this->t('There is already resource (:name) with this override.', [':name' => $resource_type->id()]));
-      }
-      if ($resource_type->get('path') == $form_values['path']) {
-        $form_state->setErrorByName('path', $this->t('There is already resource (:name) with this path.', [':name' => $resource_type->id()]));
-      }
+    $typed_config = $this->typedConfigManager
+      ->createFromNameAndData($this->entity->id(), $this->entity->toArray());
+    $constraints = $typed_config->validate();
+    /** @var \Symfony\Component\Validator\ConstraintViolation $violation */
+    foreach ($constraints as $violation) {
+      $form_path = str_replace('.', '][', $violation->getPropertyPath());
+      $form_state->setErrorByName($form_path, $violation->getMessage());
     }
   }
 
@@ -326,17 +303,20 @@ class JsonapiResourceConfigForm extends EntityForm {
     $overrides_form['overrides']['fields'] = [
       '#type' => 'details',
       '#title' => $this->t('Fields'),
-      '#description' => $this->t('Override configuration for the resource fields.'),
       '#open' => TRUE,
     ];
 
+    $markup = '';
+    $markup .= '<dl>';
+    $markup .= '<dt>' . t('Disabled') . '</dt>';
+    $markup .= '<dd>' . t('Check this if you want to disable this field completely. Disabling required fields will cause problems when writing to the resource.') . '</dd>';
+    $markup .= '<dt>' . t('Alias') . '</dt>';
+    $markup .= '<dd>' . t('Overrides the field name with a custom name. Example: Change "field_tags" to "tags".') . '</dd>';
+    $markup .= '<dt>' . t('Enhancer') . '</dt>';
+    $markup .= '<dd>' . t('Select an enhancer to manipulate the public output coming in and out.') . '</dd>';
+    $markup .= '</dl>';
     $overrides_form['overrides']['fields']['info'] = [
-      '#theme' => 'item_list',
-      '#items' => [
-        $this->t('<strong>Disabled</strong>: Check this if you want to disable this field completely. Disabling required fields will cause problems when writing to the resource.'),
-        $this->t('<strong>Alias</strong>: Overrides the field name with a custom name. Example: Change "field_tags" to "tags".'),
-        $this->t('<strong>Enhancer</strong>: Select an enhancer to manipulate the public output coming in and out.'),
-      ],
+      '#markup' => $markup,
     ];
 
     $overrides_form['overrides']['fields']['resourceFields'] = [
@@ -398,7 +378,7 @@ class JsonapiResourceConfigForm extends EntityForm {
     $overrides_form['disabled'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Disabled'),
-      '#title_display' => 'hidden',
+      '#title_display' => 'invisible',
       '#default_value' => $resource_field['disabled'],
     ];
     $overrides_form['fieldName'] = [

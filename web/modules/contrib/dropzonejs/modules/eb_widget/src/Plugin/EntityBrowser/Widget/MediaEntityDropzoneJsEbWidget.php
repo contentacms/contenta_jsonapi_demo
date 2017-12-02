@@ -162,15 +162,13 @@ class MediaEntityDropzoneJsEbWidget extends DropzoneJsEbWidget {
     $bundle = $this->getBundle();
 
     foreach (parent::prepareEntities($form, $form_state) as $file) {
-      $entity_values = [
+      $entities[] = $this->entityTypeManager->getStorage('media')->create([
         'bundle' => $bundle->id(),
         $bundle->getTypeConfiguration()['source_field'] => $file,
         'uid' => $this->currentUser->id(),
         'status' => TRUE,
         'type' => $bundle->getType()->getPluginId(),
-      ];
-      $this->moduleHandler->alter('dropzonejs_eb_media_entity_prepare', $entity_values, $file);
-      $entities[] = $this->entityTypeManager->getStorage('media')->create($entity_values);
+      ]);
     }
 
     return $entities;
@@ -189,6 +187,7 @@ class MediaEntityDropzoneJsEbWidget extends DropzoneJsEbWidget {
       /** @var \Drupal\dropzonejs\Events\DropzoneMediaEntityCreateEvent $event */
       $event = $this->eventDispatcher->dispatch(Events::MEDIA_ENTITY_CREATE, new DropzoneMediaEntityCreateEvent($media_entity, $file, $form, $form_state, $element));
       $media_entity = $event->getMediaEntity();
+      $source_field = $media_entity->get('bundle')->entity->getTypeConfiguration()['source_field'];
       // If we don't save file at this point Media entity creates another file
       // entity with same uri for the thumbnail. That should probably be fixed
       // in Media entity, but this workaround should work for now.
