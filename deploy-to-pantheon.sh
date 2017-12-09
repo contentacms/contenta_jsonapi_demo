@@ -40,7 +40,7 @@ cp -r web/profiles/contrib/contenta_jsonapi/config/sync config;
 echo -e "${FG_C}${BG_C} EXECUTING ${NO_C} terminus build:env:push -n "$TERMINUS_SITE.dev" --yes"
 terminus build:env:push -n "$TERMINUS_SITE.dev" --yes
 # Install the site with the newly built assets.
-echo -e "${FG_C}${BG_C} EXECUTING ${NO_C} terminus build:env:install -n "$TERMINUS_SITE.dev" --account-mail="$ADMIN_EMAIL" --account-pass="[REDACTED]" --site-name="Contenta CMS" --site-mail="$ADMIN_EMAIL" -v"
+echo -e "${FG_C}${BG_C} EXECUTING ${NO_C} terminus build:env:install -n \"$TERMINUS_SITE.dev\" --account-mail=\"$ADMIN_EMAIL\" --account-pass=\"[REDACTED]\" --site-name=\"Contenta CMS\" --site-mail=\"$ADMIN_EMAIL\" -v"
 terminus build:env:install -n "$TERMINUS_SITE.dev" --account-mail="$ADMIN_EMAIL" --account-pass="$ADMIN_PASSWORD" --site-name="Contenta CMS" --site-mail="$ADMIN_EMAIL" -v;
 # Do some cleanup.
 echo -e "${FG_C}${BG_C} EXECUTING ${NO_C} terminus build:env:delete:pr -n "$TERMINUS_SITE" --yes"
