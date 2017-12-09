@@ -69,5 +69,5 @@ Thumbs.db
 
 # Things in the core directory that Drupal 8 commits in the repository.
 !web/core/**/*.gz
-certificates/public.key
-certificates/private.key
+/keys/public.key
+/keys/private.key
