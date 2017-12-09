@@ -71,3 +71,4 @@ Thumbs.db
 !web/core/**/*.gz
 /keys/public.key
 /keys/private.key
+deploy-to-pantheon.sh
